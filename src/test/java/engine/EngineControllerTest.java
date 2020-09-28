@@ -1,8 +1,10 @@
 package engine;
 
 import fr.istic.aco.editor.engine.EngineController;
-import fr.istic.aco.editor.engine.EngineService;
-import fr.istic.aco.editor.engine.dto.Selection;
+import fr.istic.aco.editor.engine.EngineImpl;
+import fr.istic.aco.editor.engine.EngineInvoker;
+import fr.istic.aco.editor.selection.SelectionImpl;
+import fr.istic.aco.editor.selection.dto.SelectionDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,13 +16,19 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class EngineControllerTest {
 
     @Mock
-    private EngineService engineService;
+    private EngineInvoker engineInvoker;
+
+    @Mock
+    private EngineImpl engine;
 
     @InjectMocks
     private EngineController engineController;
@@ -30,6 +38,10 @@ class EngineControllerTest {
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
+
+        StringBuilder buffer = new StringBuilder("This is the given buffer content.");
+        SelectionImpl selectionImpl = new SelectionImpl(buffer);
+        when(engine.getSelection()).thenReturn(selectionImpl);
     }
 
     @AfterEach
@@ -40,45 +52,43 @@ class EngineControllerTest {
     @Test
     @DisplayName("Get the engine state")
     void testGetBufferContents() {
-        String mockBuffer = "This is the engine state.";
-        when(engineService.getEngineState()).thenReturn(mockBuffer);
-
         ResponseEntity<String> response = engineController.getEngineState();
 
         assertEquals(200, response.getStatusCode().value());
-        System.out.println(response);
-        assertEquals(mockBuffer, response.getBody());
-        verify(engineService, times(1)).getEngineState();
     }
 
     @Test
     @DisplayName("Update a selection in a valid range")
     void testValidUpdateSelection() {
-        Selection selection = new Selection(10, 15);
-        int beginIndex = selection.getBeginIndex();
-        int endIndex = selection.getEndIndex();
+        SelectionDto selectionDto = new SelectionDto(10, 15);
 
-        ResponseEntity<String> response = engineController.updateSelection(selection);
+        Map<String, Object> params = new HashMap<>();
+        params.put("beginIndex", selectionDto.beginIndex());
+        params.put("endIndex", selectionDto.endIndex());
+
+        ResponseEntity<String> response = engineController.updateSelection(selectionDto);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).updateSelection(
-                beginIndex,
-                endIndex);
+        verify(engineInvoker, times(1)).execute(params);
     }
 
     @ParameterizedTest
     @CsvSource({"-1,2", "-3,-1", "3,1"})
     @DisplayName("Update a selection in an invalid range")
     void testInvalidUpdateSelection(int beginIndex, int endIndex) {
-        Selection selection = new Selection(beginIndex, endIndex);
+        Map<String, Object> params = new HashMap<>();
+        params.put("beginIndex", beginIndex);
+        params.put("endIndex", endIndex);
 
-        doThrow(new IndexOutOfBoundsException("Invalid selection range"))
-                .when(engineService).updateSelection(beginIndex, endIndex);
+        SelectionDto selectionDto = new SelectionDto(beginIndex, endIndex);
 
-        ResponseEntity<String> response = engineController.updateSelection(selection);
+        doThrow(new IllegalArgumentException())
+                .when(engineInvoker).execute(params);
+
+        ResponseEntity<String> response = engineController.updateSelection(selectionDto);
 
         assertEquals(400, response.getStatusCode().value());
-        verify(engineService, times(1)).updateSelection(beginIndex, endIndex);
+        verify(engineInvoker, times(1)).execute(params);
     }
 
     @Test
@@ -87,7 +97,7 @@ class EngineControllerTest {
         ResponseEntity<String> response = engineController.cutSelectedText();
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).cutSelectedText();
+        verify(engineInvoker, times(1)).execute(null);
     }
 
     @Test
@@ -96,7 +106,7 @@ class EngineControllerTest {
         ResponseEntity<String> response = engineController.copySelectedText();
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).copySelectedText();
+        verify(engineInvoker, times(1)).execute(null);
     }
 
     @Test
@@ -105,25 +115,32 @@ class EngineControllerTest {
         ResponseEntity<String> response = engineController.pasteClipboard();
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).pasteClipboard();
+        verify(engineInvoker, times(1)).execute(null);
     }
 
     @Test
     @DisplayName("Insert text into the buffer")
     void testInsertTextIntoBuffer() {
-        String text = "Hello, World!";
+        String text = "..";
+        Map<String, Object> params = new HashMap<>();
+        params.put("text", text);
+
         ResponseEntity<String> response = engineController.insertText(text);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).insertText(text);
+        verify(engineInvoker, times(1)).execute(params);
     }
 
     @Test
     @DisplayName("Delete text from the buffer")
     void testDeleteSelectedTextFromBuffer() {
+        StringBuilder buffer = new StringBuilder("This is the given buffer");
+        SelectionImpl selectionImpl = new SelectionImpl(buffer);
+        when(engine.getSelection()).thenReturn(selectionImpl);
+
         ResponseEntity<String> response = engineController.deleteSelectedText();
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).deleteSelectedText();
+        verify(engineInvoker, times(1)).execute(null);
     }
 }

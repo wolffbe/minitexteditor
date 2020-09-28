@@ -1,14 +1,15 @@
 package engine;
 
 import fr.istic.aco.editor.engine.Engine;
-import fr.istic.aco.editor.selection.Selection;
 import fr.istic.aco.editor.engine.EngineImpl;
+import fr.istic.aco.editor.selection.Selection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EngineImplTest {
 
@@ -162,9 +163,9 @@ class EngineImplTest {
 
     @Nested
     @DisplayName("Insert into the buffer")
-    class InsertIntoTheBuffer {
+    class InsertionIntoTheBuffer {
         @Test
-        @DisplayName("Text into an empty buffer")
+        @DisplayName("Insert text into an empty buffer")
         void testInsertIntoBuffer() {
             String buffer = "This is the given buffer content.";
 
@@ -174,7 +175,7 @@ class EngineImplTest {
         }
 
         @Test
-        @DisplayName("Characters into an empty buffer")
+        @DisplayName("Insert characters into an empty buffer")
         void testInsertCharacters() {
             String buffer = "test";
             int beginIndex = 0;
@@ -194,7 +195,7 @@ class EngineImplTest {
         }
 
         @Test
-        @DisplayName("Characters overwriting a selection")
+        @DisplayName("Insert characters overwriting a selection")
         void testInsertOverwritingSelection() {
             String buffer = "This is the given buffer content.";
             String select = "the given";
@@ -218,7 +219,7 @@ class EngineImplTest {
 
     @Nested
     @DisplayName("Delete from the buffer")
-    class DeleteTextFromBuffer {
+    class DeletionTextFromBuffer {
         @Test
         @DisplayName("Delete text from the buffer")
         void testDeleteTextFromBuffer() {
