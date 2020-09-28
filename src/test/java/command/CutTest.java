@@ -25,7 +25,7 @@ class CutTest {
     }
 
     @Test
-    @DisplayName("Test cutting text")
+    @DisplayName("Cut text")
     void testCutSelectedText() {
         Map<String, Object> params = new HashMap<>();
 

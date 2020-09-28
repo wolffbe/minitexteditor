@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class CommandImplTest {
 
     @Test
-    @DisplayName("Test initializing CommandImpl")
+    @DisplayName("Initialize command")
     void testCommandImplInitialization() {
         EngineImpl mockEngine = Mockito.mock(EngineImpl.class);
 

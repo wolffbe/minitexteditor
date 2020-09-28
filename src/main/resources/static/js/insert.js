@@ -17,7 +17,7 @@ async function insert(key) {
       return response.json();
     })
     .then(data => {
-      appendToLog("Insert successful", data)
+      appendToLog("Insertion successful", data)
     })
     .catch(error => {
         console.error('Error inserting:', error);

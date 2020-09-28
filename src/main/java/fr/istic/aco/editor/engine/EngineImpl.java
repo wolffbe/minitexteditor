@@ -17,6 +17,12 @@ public class EngineImpl implements Engine {
         this.selection = new SelectionImpl(this.buffer);
     }
 
+    public EngineImpl(String buffer, String clipboard, SelectionImpl selection) {
+        this.buffer = new StringBuilder(buffer);
+        this.clipboard = clipboard;
+        this.selection = selection;
+    }
+
     /**
      * Provides access to the selection control object
      *
