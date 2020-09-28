@@ -1,11 +1,15 @@
 package command;
 
+import fr.istic.aco.editor.command.Deletion;
 import fr.istic.aco.editor.command.Insertion;
 import fr.istic.aco.editor.engine.EngineImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,17 +19,27 @@ import static org.mockito.Mockito.*;
 
 class InsertionTest {
 
+    @Mock
     private EngineImpl engine;
+
     private Insertion insertion;
+
+    private AutoCloseable autoCloseable;
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
+    }
 
     @BeforeEach
     void setUp() {
-        engine = Mockito.mock(EngineImpl.class);
+        autoCloseable = MockitoAnnotations.openMocks(this);
+
         insertion = new Insertion(engine);
     }
 
     @Test
-    @DisplayName("Insert text")
+    @DisplayName("Execute insert command")
     void testInsertingText() {
         String text = "text";
         Map<String, Object> params = new HashMap<>();
@@ -37,7 +51,7 @@ class InsertionTest {
     }
 
     @Test
-    @DisplayName("Insert text with a missing text parameter")
+    @DisplayName("Execute insert command with a missing text parameter")
     void testInsertMissingTextParameter() {
         Map<String, Object> params = new HashMap<>();
 

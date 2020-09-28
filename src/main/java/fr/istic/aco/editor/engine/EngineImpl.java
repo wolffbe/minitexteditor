@@ -17,12 +17,6 @@ public class EngineImpl implements Engine {
         this.selection = new SelectionImpl(this.buffer);
     }
 
-    public EngineImpl(String buffer, String clipboard, SelectionImpl selection) {
-        this.buffer = new StringBuilder(buffer);
-        this.clipboard = clipboard;
-        this.selection = selection;
-    }
-
     /**
      * Provides access to the selection control object
      *
@@ -97,6 +91,7 @@ public class EngineImpl implements Engine {
         if(selection.getBeginIndex() == selection.getEndIndex()) {
             buffer.insert(selection.getBeginIndex(), s);
         }
+        // move the carel to the end of the insertion
         selection.setEndIndex(selection.getBeginIndex() + s.length());
         selection.setBeginIndex(selection.getBeginIndex() + s.length());
     }

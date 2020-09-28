@@ -1,30 +1,59 @@
 package engine;
 
+import fr.istic.aco.editor.command.*;
+import fr.istic.aco.editor.engine.EngineDto;
 import fr.istic.aco.editor.engine.EngineImpl;
+import fr.istic.aco.editor.engine.EngineInvoker;
 import fr.istic.aco.editor.engine.EngineService;
+import fr.istic.aco.editor.memento.CaretakerImpl;
+import fr.istic.aco.editor.memento.OriginatorImpl;
+import fr.istic.aco.editor.selection.SelectionDto;
+import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import fr.istic.aco.editor.selection.SelectionImpl;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class EngineServiceTest {
+public class EngineServiceTest {
 
     @Mock
-    private EngineImpl engine;
+    SelectionImpl selection;
+
+    @Mock
+    EngineImpl engine;
+
+    @Mock
+    EngineInvoker engineInvoker;
+
+    @Mock
+    OriginatorImpl originator;
+
+    @Mock
+    CaretakerImpl<EngineImpl> caretaker;
 
     @InjectMocks
-    private EngineService engineService;
+    EngineService engineService;
 
     private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
+
+        when(selection.getBeginIndex()).thenReturn(0);
+        when(selection.getEndIndex()).thenReturn(0);
+
+        when(engine.getBufferContents()).thenReturn("");
+        when(engine.getClipboardContents()).thenReturn("");
+        when(engine.getSelection()).thenReturn(selection);
     }
 
     @AfterEach
@@ -32,217 +61,288 @@ class EngineServiceTest {
         autoCloseable.close();
     }
 
-    @Test
-    @DisplayName("Get the state of the engine")
-    void testGetStateOfEngine() {
-        String buffer = "This is the given buffer content.";
-        String clipboard = "given";
-        int beginIndex = 0;
-        int endIndex = clipboard.length();
-        int bufferEndIndex = buffer.length();
+    @ParameterizedTest
+    @CsvSource({"0, 2", "1, 3"})
+    @DisplayName("Update selection")
+    void testUpdateSelection(int beginIndex, int endIndex) {
+        when(engine.getSelection().getBeginIndex()).thenReturn(beginIndex);
+        when(engine.getSelection().getEndIndex()).thenReturn(endIndex);
 
-        String mockState =
-                "{" +
-                        "\"buffer\": \"" + buffer + "\"," +
-                        "\"clipboard\": \"" + clipboard + "\"," +
-                        "\"beginIndex\": " + beginIndex + "," +
-                        "\"endIndex\": " + endIndex + "," +
-                        "\"bufferEndIndex\": " + buffer.length() +
-                "}";
+        Optional<EngineDto> engineDto = engineService.updateSelection(new SelectionDto(1,2));
 
-        SelectionImpl mockSelection = mock(SelectionImpl.class);
+        assertTrue(engineDto.isPresent());
 
-        when(engine.getSelection()).thenReturn(mockSelection);
-        when(mockSelection.getBeginIndex()).thenReturn(beginIndex);
-        when(mockSelection.getEndIndex()).thenReturn(endIndex);
-        when(mockSelection.getBufferEndIndex()).thenReturn(bufferEndIndex);
-        when(engine.getBufferContents()).thenReturn(buffer);
-        when(engine.getClipboardContents()).thenReturn(clipboard);
-
-        String result = engineService.getEngineState();
-
-        assertEquals(mockState, result);
-        verify(engine, times(1)).getBufferContents();
-        verify(engine, times(1)).getClipboardContents();
-        verify(engine, times(3)).getSelection();
-        verify(mockSelection, times(1)).getBeginIndex();
-        verify(mockSelection, times(1)).getEndIndex();
-        verify(mockSelection, times(1)).getBufferEndIndex();
-    }
-
-
-    @Test
-    @DisplayName("Get the content of the buffer")
-    void testGetBufferContents() {
-        String mockBuffer = "This is the given buffer content.";
-        when(engine.getBufferContents()).thenReturn(mockBuffer);
-
-        String result = engineService.getBufferContents();
-
-        assertEquals(mockBuffer, result);
-        verify(engine, times(1)).getBufferContents();
+        verify(engineInvoker, times(1)).setCommand(any(Selection.class));
+        verify(engineInvoker, times(1)).execute(any());
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
     }
 
     @Test
-    @DisplayName("Get the content of the clipboard")
-    void testGetClipboardContents() {
-        String mockClipboard = "This is the given clipboard content.";
-        when(engine.getClipboardContents()).thenReturn(mockClipboard);
+    @DisplayName("Get engine state")
+    void testGetEngineState() {
+        EngineDto engineDto = engineService.getEngineState();
 
-        String result = engineService.getClipboardContents();
+        assertNotNull(engineDto);
+        assertInstanceOf(EngineDto.class, engineDto);
+        assertEquals(engineDto.getBuffer(), "");
 
-        assertEquals(mockClipboard, result);
-        verify(engine, times(1)).getClipboardContents();
-    }
-
-    @Nested
-    @DisplayName("Update the selection")
-    class UpdateSelection {
-        @Test
-        @DisplayName("Update the selection using valid indexes")
-        void testValidUpdateIndexes() {
-            int beginIndex = 5;
-            int endIndex = 10;
-
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-
-            engineService.updateSelection(beginIndex, endIndex);
-
-            verify(mockSelection, times(1)).setBeginIndex(beginIndex);
-            verify(mockSelection, times(1)).setEndIndex(endIndex);
-            verify(engine, times(2)).getSelection();
-        }
-
-        @Test
-        @DisplayName("Update the selection by moving the caret to the right")
-        void testMoveCaretToTheRight() {
-            String buffer = "This is the given buffer content.";
-            int initialBeginIndex = 0;
-            int initialEndIndex = 0;
-
-            int updatedBeginIndex = 1;
-            int updatedEndIndex = 1;
-
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-            when(engine.getSelection().getBeginIndex()).thenReturn(initialBeginIndex);
-            when(engine.getSelection().getEndIndex()).thenReturn(initialEndIndex);
-            when(engine.getBufferContents()).thenReturn(buffer);
-
-            assertDoesNotThrow(() -> {
-                engineService.updateSelection(updatedBeginIndex, updatedEndIndex);
-            });
-        }
-
-        @Test
-        @DisplayName("Update the selection by moving the caret to the left")
-        void testMoveCaretToTheLeft() {
-            String buffer = "This is the given buffer content.";
-            int initialBeginIndex = 1;
-            int initialEndIndex = 1;
-
-            int updatedBeginIndex = 0;
-            int updatedEndIndex = 0;
-
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-            when(engine.getSelection().getBeginIndex()).thenReturn(initialBeginIndex);
-            when(engine.getSelection().getEndIndex()).thenReturn(initialEndIndex);
-            when(engine.getBufferContents()).thenReturn(buffer);
-
-            assertDoesNotThrow(() -> {
-                engineService.updateSelection(updatedBeginIndex, updatedEndIndex);
-            });
-        }
+        verify(caretaker, times(1)).getCurrentMementoIndex();
+        verify(caretaker, times(1)).getLastMementoIndex();
     }
 
     @Test
-    @DisplayName("Cut text from the buffer")
-    void testCutSelectedText() {
-        engineService.cutSelectedText();
+    @DisplayName("Undo previous action")
+    void testUndo() {
+        when(caretaker.isFirstMemento()).thenReturn(false);
 
-        verify(engine, times(1)).cutSelectedText();
-    }
+        Optional<EngineDto> engineDto = engineService.undo();
 
-    @Nested
-    @DisplayName("Copy text into the clipboard")
-    class CopyText {
-        @Test
-        @DisplayName("Copy a text selection into the clipboard")
-        void testCopySelectedText() {
-            int beginIndex = 0;
-            int endIndex = 1;
+        assertTrue(engineDto.isPresent());
 
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-            when(engine.getSelection().getBeginIndex()).thenReturn(beginIndex);
-            when(engine.getSelection().getBeginIndex()).thenReturn(endIndex);
-
-            engineService.copySelectedText();
-
-            verify(engine, times(1)).copySelectedText();
-        }
-
-        @Test
-        @DisplayName("Skip copying when the selection is empty")
-        void testDoesNotCopyWhenSelectionIsEmpty() {
-            int beginIndex = 1;
-            int endIndex = 1;
-
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-            when(engine.getSelection().getBeginIndex()).thenReturn(beginIndex);
-            when(engine.getSelection().getBeginIndex()).thenReturn(endIndex);
-
-            engineService.updateSelection(beginIndex, endIndex);
-
-            verify(engine, times(0)).copySelectedText();
-        }
+        verify(caretaker, times(1)).isFirstMemento();
+        verify(caretaker, times(1)).decrementMementoIndex();
+        verify(caretaker, times(1)).getMemento(anyInt());
+        verify(caretaker, times(2)).getCurrentMementoIndex();
+        verify(originator, times(1)).restoreState(any());
     }
 
     @Test
-    @DisplayName("Paste text into the clipboard")
+    @DisplayName("Update selection with same selection")
+    void testUpdateSelectionWithSameSelection() {
+        Optional<EngineDto> engineDto = engineService.updateSelection(new SelectionDto(0, 0));
+
+        assertTrue(engineDto.isEmpty());
+        verifyNoInteractions(engineInvoker);
+    }
+
+    @Test
+    @DisplayName("Cut selection")
+    void testCutSelection() {
+        when(selection.getBeginIndex()).thenReturn(0);
+        when(selection.getEndIndex()).thenReturn(2);
+
+        Optional<EngineDto> engineDto = engineService.cutSelection();
+
+        assertTrue(engineDto.isPresent());
+
+        verify(engineInvoker, times(1)).setCommand(any(Cut.class));
+        verify(engineInvoker, times(1)).execute(null);
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
+    }
+
+    @Test
+    @DisplayName("Cut selection with same selection")
+    void testCutSelectionWithSameSelection() {
+        Optional<EngineDto> engineDto = engineService.cutSelection();
+
+        assertTrue(engineDto.isEmpty());
+        verifyNoInteractions(engineInvoker);
+    }
+
+    @Test
+    @DisplayName("Copy selection")
+    void testCopySelection() {
+        when(engine.getSelection().getBeginIndex()).thenReturn(0);
+        when(engine.getSelection().getEndIndex()).thenReturn(1);
+
+        Optional<EngineDto> engineDto = engineService.copySelection();
+
+        assertTrue(engineDto.isPresent());
+
+        verify(engineInvoker, times(1)).setCommand(any(Copy.class));
+        verify(engineInvoker, times(1)).execute(null);
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
+    }
+
+    @Test
+    @DisplayName("Copy selection with same selection")
+    void testCopySelectionWithSameSelection() {
+        Optional<EngineDto> engineDto = engineService.copySelection();
+
+        assertTrue(engineDto.isEmpty());
+        verifyNoInteractions(engineInvoker);
+    }
+
+    @Test
+    @DisplayName("Paste clipboard")
     void testPasteClipboard() {
-        engineService.pasteClipboard();
+        when(engine.getClipboardContents()).thenReturn("This is the current clipboard content.");
 
-        verify(engine, times(1)).pasteClipboard();
+        Optional<EngineDto> engineDto = engineService.pasteClipboard();
+
+        assertTrue(engineDto.isPresent());
+
+        verify(engineInvoker, times(1)).setCommand(any(Paste.class));
+        verify(engineInvoker, times(1)).execute(null);
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
     }
 
     @Test
-    @DisplayName("Insert text into the buffer")
-    void testInsertText() {
-        String text = "This is the buffer.";
-        engineService.insertText(text);
+    @DisplayName("Paste empty clipboard")
+    void testPasteEmptyClipboard() {
+        Optional<EngineDto> engineDto = engineService.pasteClipboard();
 
-        verify(engine, times(1)).insert(text);
+        assertTrue(engineDto.isEmpty());
+        verifyNoInteractions(engineInvoker);
+    }
+
+    @Test
+    @DisplayName("Insert text")
+    void testInsertText() {
+        EngineDto engineDto = engineService.insertText(anyString());
+
+        assertNotNull(engineDto);
+
+        verify(engineInvoker, times(1)).setCommand(any(Insertion.class));
+        verify(engineInvoker, times(1)).execute(any());
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
+    }
+
+    @Test
+    @DisplayName("Delete text")
+    void testDeleteText() {
+        when(engine.getBufferContents()).thenReturn("This is the current buffer content.");
+
+        Optional<EngineDto> engineDto = engineService.deleteText();
+
+        assertTrue(engineDto.isPresent());
+
+        verify(engineInvoker, times(1)).setCommand(any(Deletion.class));
+        verify(engineInvoker, times(1)).execute(null);
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
+    }
+
+    @Test
+    @DisplayName("Delete empty buffer")
+    void testDeleteEmptyBuffer() {
+        Optional<EngineDto> engineDto = engineService.deleteText();
+
+        assertTrue(engineDto.isEmpty());
+        verifyNoInteractions(engineInvoker);
+    }
+
+    @Test
+    @DisplayName("Replay previous actions")
+    void testReplay() {
+        when(caretaker.getCurrentMementoIndex()).thenReturn(5);
+
+        Optional<EngineDto> engineDto = engineService.replay(0);
+
+        assertTrue(engineDto.isPresent());
+
+        verify(caretaker, times(2)).getCurrentMementoIndex();
+        verify(caretaker, times(1)).setMementoIndex(0);
+        verify(caretaker, times(3)).getLastMementoIndex();
+        verify(caretaker, times(1)).getMemento(anyInt());
+        verify(originator, times(1)).restoreState(any());
+    }
+
+    @Test
+    @DisplayName("Replay actions from same memento index as current memento index")
+    void testReplayFromSameMementoIndexAsCurrentMementoIndex() {
+        when(caretaker.getCurrentMementoIndex()).thenReturn(0);
+
+        Optional<EngineDto> engineDto = engineService.replay(0);
+
+        assertTrue(engineDto.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Redo previous action")
+    void testRedo() {
+        when(caretaker.isLastMemento()).thenReturn(false);
+
+        Optional<EngineDto> engineDto = engineService.redo();
+
+        assertNotNull(engineDto);
+        assertInstanceOf(Optional.class, engineDto);
+        assertTrue(engineDto.isPresent());
+        assertEquals("", engineDto.get().getBuffer());
+
+        verify(caretaker, times(1)).isLastMemento();
+        verify(caretaker, times(1)).incrementMementoIndex();
+        verify(caretaker, times(1)).getMemento(anyInt());
+        verify(caretaker, times(2)).getCurrentMementoIndex();
+        verify(originator, times(1)).restoreState(any());
+    }
+
+    @Test
+    @DisplayName("Undo previous action to before the first memento")
+    void testUndoToBeforeFirstMemento() {
+        when(caretaker.isFirstMemento()).thenReturn(true);
+
+        Optional<EngineDto> engineDto = engineService.undo();
+
+        assertTrue(engineDto.isEmpty());
     }
 
     @Nested
-    @DisplayName("Delete text from the buffer")
-    class DeleteText {
+    @DisplayName("Initialize engine service")
+    class initializeEngineService {
         @Test
-        @DisplayName("Delete a selection from the buffer")
-        void testDeleteSelectedText() {
-            engineService.deleteSelectedText();
+        @DisplayName("Initialize engine service")
+        void testInitializeEngineService() {
+            EngineService service = new EngineService(engine, engineInvoker, originator, caretaker);
 
-            verify(engine, times(1)).delete();
+            assertNotNull(service);
+
+            verify(originator, times(2)).setEngine(any(EngineImpl.class));
+            verify(caretaker, times(2)).addMemento(any());
         }
 
         @Test
-        @DisplayName("Delete individual characters from the buffer")
-        void testDeleteZeroIndex() {
-            int beginIndex = 0;
-            int endIndex = 0;
+        @DisplayName("Initialize engine service without invoker")
+        void testInitializeEngineServiceWithoutInvoker() {
+            String expectedErrorMessage = "An engine service requires an engine invoker.";
 
-            SelectionImpl mockSelection = mock(SelectionImpl.class);
-            when(engine.getSelection()).thenReturn(mockSelection);
-            when(mockSelection.getBeginIndex()).thenReturn(beginIndex);
-            when(mockSelection.getEndIndex()).thenReturn(endIndex);
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, null, originator, caretaker);
+            });
+            String errorMessage = exception.getMessage();
 
-            engineService.deleteSelectedText();
-
-            verify(engine, times(1)).delete();
+            assertEquals(expectedErrorMessage, errorMessage);
         }
+
+        @Test
+        @DisplayName("Initialize engine service without originator")
+        void testInitializeEngineControllerWithoutOriginator() {
+            String expectedErrorMessage = "An engine service requires an originator.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, engineInvoker, null, caretaker);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+
+        @Test
+        @DisplayName("Initialize engine service without caretaker")
+        void testInitializeEngineControllerWithoutCaretaker() {
+            String expectedErrorMessage = "An engine service requires a caretaker.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, engineInvoker, originator, null);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+    }
+
+    @Test
+    @DisplayName("Redo previous action to after the last memento")
+    void testRedoToAfterLastMemento() {
+        when(caretaker.isLastMemento()).thenReturn(true);
+
+        Optional<EngineDto> engineDto = engineService.redo();
+
+        assertTrue(engineDto.isEmpty());
     }
 }

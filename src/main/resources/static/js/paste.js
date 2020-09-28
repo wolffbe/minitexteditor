@@ -1,6 +1,11 @@
+/**
+ * Performs a paste operation by making an API request to the text editing engine.
+ * Sends a POST request to insert the clipboard content at the current cursor position.
+ *
+ * Author: Benedict Wolff
+ * @version 1.0
+ */
 async function paste() {
-    if(engine.beginIndex === 0 && engine.endIndex === 0) return;
-
     const url = "http://localhost:8080/api/engine/paste";
 
     await fetch(url, {
@@ -8,14 +13,20 @@ async function paste() {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(response);
       }
       return response.json();
     })
     .then(data => {
-      appendToLog("Paste successful", data)
+      if(data === null) {
+        appendToLog("Nothing to paste!");
+      } else {
+        appendToLog("Paste successful", data)
+      }
     })
     .catch(error => {
-        console.error('Error pasting:', error);
+        let message = "Error pasting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

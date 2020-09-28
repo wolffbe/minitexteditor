@@ -1,3 +1,11 @@
+/**
+ * Main script for managing the text editing engine and user interface interactions.
+ * This script initializes key components like the editor, engine state, and control elements.
+ *
+ * Author: Benedict Wolff
+ * @version 1.0
+ */
+
 const editor = document.getElementById('editor');
 
 const engine = {

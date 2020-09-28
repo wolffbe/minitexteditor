@@ -8,8 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EngineImplTest {
 
@@ -18,6 +17,17 @@ class EngineImplTest {
     @BeforeEach
     void setUp() {
         engine = new EngineImpl();
+    }
+
+    @Test
+    @DisplayName("Initialize engine")
+    void initializeEngine() {
+        assertEquals("", engine.getBufferContents());
+        assertEquals("", engine.getClipboardContents());
+
+        assertNotNull(engine.getSelection());
+        assertEquals(0, engine.getSelection().getBeginIndex());
+        assertEquals(0, engine.getSelection().getEndIndex());
     }
 
     @Test
@@ -93,7 +103,7 @@ class EngineImplTest {
     @DisplayName("Paste the content of the clipboard into the buffer")
     class PasteIntoClipboard {
         @Test
-        @DisplayName("Paste the content using a smaller-sized selection")
+        @DisplayName("Paste text using a smaller-sized selection")
         void testPasteClipboardSmallerSelection() {
             StringBuilder buffer = new StringBuilder("This is the given buffer content.");
             String clipboard = "given";
@@ -115,7 +125,7 @@ class EngineImplTest {
         }
 
         @Test
-        @DisplayName("Paste the content using an equally-sized selection")
+        @DisplayName("Paste text using an equally-sized selection")
         void testPasteClipboardEqualSelection() {
             String buffer = "This is the given buffer content.";
             String clipboard = "given";
@@ -135,7 +145,7 @@ class EngineImplTest {
         }
 
         @Test
-        @DisplayName("Paste the content using a larger-sized selection")
+        @DisplayName("Paste text using a larger-sized selection")
         void testPasteClipboardLargerSelection() {
             String buffer = "This is the given buffer content.";
             String bufferAfterPaste = "This is the given";
@@ -162,7 +172,7 @@ class EngineImplTest {
     }
 
     @Nested
-    @DisplayName("Insert into the buffer")
+    @DisplayName("Insert text into the buffer")
     class InsertionIntoTheBuffer {
         @Test
         @DisplayName("Insert text into an empty buffer")
@@ -218,7 +228,7 @@ class EngineImplTest {
     }
 
     @Nested
-    @DisplayName("Delete from the buffer")
+    @DisplayName("Delete text from the buffer")
     class DeletionTextFromBuffer {
         @Test
         @DisplayName("Delete text from the buffer")
@@ -271,6 +281,4 @@ class EngineImplTest {
             assertEquals(endIndex, engine.getSelection().getEndIndex());
         }
     }
-
-
 }

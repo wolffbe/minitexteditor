@@ -1,6 +1,11 @@
+/**
+ * Performs a copy operation by making an API request to the text editing engine.
+ * The function sends a POST request to copy the selected text and logs the outcome.
+ *
+ * Author: Benedict Wolff
+ * @version 1.0
+ */
 async function copy() {
-    if(engine.beginIndex === 0 && engine.endIndex === 0) return;
-
     const url = "http://localhost:8080/api/engine/copy";
 
     await fetch(url, {
@@ -8,14 +13,20 @@ async function copy() {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(response);
       }
       return response.json();
     })
     .then(data => {
-      appendToLog("Copy successful", data)
+      if(data === null) {
+        appendToLog("Nothing to copy!");
+      } else {
+        appendToLog("Copy successful", data)
+      }
     })
     .catch(error => {
-        console.error('Error copying:', error);
+        let message = "Error copying";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

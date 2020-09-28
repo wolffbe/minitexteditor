@@ -1,5 +1,6 @@
 package command;
 
+import fr.istic.aco.editor.command.Insertion;
 import fr.istic.aco.editor.command.Selection;
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
@@ -22,24 +23,25 @@ class SelectionTest {
     @Mock
     private EngineImpl engine;
 
-    @InjectMocks
     private Selection selection;
 
     private AutoCloseable autoCloseable;
-
-    @BeforeEach
-    void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-    }
 
     @AfterEach
     void tearDown() throws Exception {
         autoCloseable.close();
     }
 
+    @BeforeEach
+    void setUp() {
+        autoCloseable = MockitoAnnotations.openMocks(this);
+
+        selection = new Selection(engine);
+    }
+
     @Test
-    @DisplayName("Select text")
-    void testValidSelection() {
+    @DisplayName("Execute select command")
+    void testSelectValidSelection() {
         int beginIndex = 0;
         int endIndex = 1;
 
@@ -111,7 +113,7 @@ class SelectionTest {
 
     @Test
     @DisplayName("Select with missing begin index")
-    void testInsertMissingBeginIndex() {
+    void testSelectMissingBeginIndex() {
         int beginIndex = 0;
         int endIndex = 1;
 
@@ -133,7 +135,7 @@ class SelectionTest {
 
     @Test
     @DisplayName("Select with missing end index")
-    void testInsertMissingEndIndex() {
+    void testSelectMissingEndIndex() {
         int beginIndex = 0;
         int endIndex = 1;
 

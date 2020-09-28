@@ -3,94 +3,87 @@ package memento;
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.memento.Memento;
 import fr.istic.aco.editor.memento.OriginatorImpl;
-import fr.istic.aco.editor.selection.SelectionImpl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OriginatorImplTest {
 
-    @Mock
-    private EngineImpl engine;
-
-    @Mock
-    private SelectionImpl selection;
-
-    @InjectMocks
-    private OriginatorImpl originator;
-
-    private AutoCloseable autoCloseable;
-
-    String buffer = "This is the given buffer content.";
-    String clipboard = "given";
-    int beginIndex = 0;
-    int endIndex = 5;
-
-    @BeforeEach
-    void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-
-        originator = new OriginatorImpl();
-
-        when(engine.getBufferContents()).thenReturn(buffer);
-        when(engine.getClipboardContents()).thenReturn(clipboard);
-        when(engine.getSelection()).thenReturn(selection);
-
-        when(selection.getBeginIndex()).thenReturn(beginIndex);
-        when(selection.getEndIndex()).thenReturn(endIndex);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
-    }
+    OriginatorImpl originator;
 
     @Test
-    @DisplayName("Save engine state as memento")
-    void testSaveState() {
-        originator.setState(engine);
+    @DisplayName("Save state with engine")
+    void testSaveStateWithEngine() {
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
 
         Memento<EngineImpl> memento = originator.saveState();
-        assertNotNull(memento);
 
-        EngineImpl state = memento.state();
-        assertNotNull(state);
+        EngineImpl savedState = memento.state();
 
-        assertEquals(buffer, state.getBufferContents());
-        assertEquals(clipboard, state.getClipboardContents());
-        assertEquals(beginIndex, state.getSelection().getBeginIndex());
-        assertEquals(endIndex, state.getSelection().getEndIndex());
+        assertEquals("", savedState.getBufferContents());
+        assertEquals("", savedState.getClipboardContents());
+        assertEquals(0, savedState.getSelection().getBeginIndex());
+        assertEquals(0, savedState.getSelection().getEndIndex());
     }
 
     @Test
-    @DisplayName("Restore engine state from memento")
+    @DisplayName("Restore state")
     void testRestoreState() {
-        String newBuffer = "This is the updated buffer content.";
-        String newClipboard = "updated given";
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
 
-        originator.setState(engine);
-        Memento<EngineImpl> memento = originator.saveState();
+        String firstInsert = "Hello, ";
+        String secondInsert = "World!";
 
-        when(engine.getBufferContents()).thenReturn(newBuffer);
-        when(engine.getClipboardContents()).thenReturn(newClipboard);
+        engine.insert(firstInsert);
+        Memento<EngineImpl> initialState = originator.saveState();
 
-        originator.setState(engine);
-        assertEquals(newBuffer, originator.saveState().state().getBufferContents());
-        assertEquals(newClipboard, originator.saveState().state().getClipboardContents());
+        engine.insert(secondInsert);
+        Memento<EngineImpl> currentState = originator.saveState();
 
-        originator.restoreState(memento);
-        EngineImpl restoredState = originator.saveState().state();
+        originator.restoreState(initialState);
 
-        assertEquals(buffer, restoredState.getBufferContents());
-        assertEquals(clipboard, restoredState.getClipboardContents());
-        assertEquals(beginIndex, restoredState.getSelection().getBeginIndex());
-        assertEquals(endIndex, restoredState.getSelection().getEndIndex());
+        assertEquals(firstInsert, initialState.state().getBufferContents());
+        assertEquals(firstInsert + secondInsert, currentState.state().getBufferContents());
+        assertEquals(firstInsert, engine.getBufferContents());
+    }
+
+    @Test
+    @DisplayName("Restore non-existent memento")
+    void testRestoreStateWithNullMemento() {
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
+
+        String expectedErrorMessage = "A memento needs to exist to be restored.";
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            originator.restoreState(null);
+        });
+        String errorMessage = exception.getMessage();
+
+        assertEquals(expectedErrorMessage, errorMessage);
+    }
+
+    @Test
+    @DisplayName("Get engine")
+    void testGetEngine() {
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
+
+        assertEquals(engine, originator.getEngine());
+    }
+
+    @Test
+    @DisplayName("Set engine")
+    void testSetEngine() {
+        EngineImpl engine = new EngineImpl();
+
+        OriginatorImpl originator = new OriginatorImpl();
+        originator.setEngine(engine);
+
+        assertEquals(engine, originator.getEngine());
     }
 }
