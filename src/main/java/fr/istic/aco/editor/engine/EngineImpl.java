@@ -1,6 +1,22 @@
-package fr.istic.aco.editor;
+package fr.istic.aco.editor.engine;
 
+import fr.istic.aco.editor.selection.Selection;
+import fr.istic.aco.editor.selection.SelectionImpl;
+import org.springframework.stereotype.Component;
+
+@Component
 public class EngineImpl implements Engine {
+
+    StringBuilder buffer;
+    String clipboard;
+    SelectionImpl selection;
+
+    public EngineImpl() {
+        this.buffer = new StringBuilder();
+        this.clipboard = "";
+        this.selection = new SelectionImpl(this.buffer);
+    }
+
     /**
      * Provides access to the selection control object
      *
@@ -8,8 +24,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public Selection getSelection() {
-        // TODO
-        return null;
+        return selection;
     }
 
     /**
@@ -19,8 +34,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public String getBufferContents() {
-        // TODO
-        return null;
+        return buffer.toString();
     }
 
     /**
@@ -30,8 +44,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public String getClipboardContents() {
-        // TODO
-        return null;
+        return clipboard;
     }
 
     /**
@@ -41,7 +54,9 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void cutSelectedText() {
-        // TODO
+        clipboard = buffer.substring(selection.getBeginIndex(), selection.getEndIndex());
+        buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
+        selection.setEndIndex(selection.getBeginIndex());
     }
 
     /**
@@ -51,7 +66,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void copySelectedText() {
-        // TODO
+        clipboard = buffer.substring(selection.getBeginIndex(), selection.getEndIndex());
     }
 
     /**
@@ -60,7 +75,9 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void pasteClipboard() {
-        // TODO
+        buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
+        buffer.insert(selection.getBeginIndex(), clipboard);
+        selection.setEndIndex(selection.getBeginIndex() + clipboard.length());
     }
 
     /**
@@ -70,7 +87,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void insert(String s) {
-
+        buffer.insert(selection.getBeginIndex(), s);
     }
 
     /**
@@ -78,6 +95,7 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void delete() {
-
+        buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
+        selection.setEndIndex(selection.getBeginIndex());
     }
 }

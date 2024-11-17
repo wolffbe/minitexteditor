@@ -1,4 +1,4 @@
-package fr.istic.aco.editor;
+package fr.istic.aco.editor.selection;
 
 /**
  * Provides access to selection control operations
