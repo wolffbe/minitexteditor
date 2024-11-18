@@ -59,8 +59,8 @@ class EngineImplTest {
         String cut = buffer.replace("the", "");
 
         engine.insert(buffer);
-        engine.getSelection().setEndIndex(endIndex);
         engine.getSelection().setBeginIndex(beginIndex);
+        engine.getSelection().setEndIndex(endIndex);
         engine.cutSelectedText();
 
         assertEquals(cut, engine.getBufferContents());
@@ -78,8 +78,8 @@ class EngineImplTest {
         int endIndex = buffer.indexOf("the") + clipboard.length();
 
         engine.insert(buffer);
-        engine.getSelection().setEndIndex(endIndex);
         engine.getSelection().setBeginIndex(beginIndex);
+        engine.getSelection().setEndIndex(endIndex);
         engine.copySelectedText();
 
         assertEquals(buffer, engine.getBufferContents());
@@ -100,8 +100,8 @@ class EngineImplTest {
             int endIndex = buffer.indexOf(clipboard) + clipboard.length();
 
             engine.insert(buffer.toString());
-            engine.getSelection().setEndIndex(endIndex);
             engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
             engine.copySelectedText();
 
             engine.getSelection().setEndIndex(beginIndex);
@@ -116,18 +116,18 @@ class EngineImplTest {
         @Test
         @DisplayName("Paste the content using an equally-sized selection")
         void testPasteClipboardEqualSelection() {
-            StringBuilder buffer = new StringBuilder("This is the given buffer content.");
+            String buffer = "This is the given buffer content.";
             String clipboard = "given";
             int beginIndex = buffer.indexOf(clipboard);
             int endIndex = buffer.indexOf(clipboard) + clipboard.length();
 
-            engine.insert(buffer.toString());
-            engine.getSelection().setEndIndex(endIndex);
+            engine.insert(buffer);
             engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
             engine.copySelectedText();
             engine.pasteClipboard();
 
-            assertEquals(buffer.insert(beginIndex, clipboard).toString(), engine.getBufferContents());
+            assertEquals(buffer, engine.getBufferContents());
             assertEquals(beginIndex + clipboard.length(), engine.getSelection().getBeginIndex());
             assertEquals(beginIndex + clipboard.length(), engine.getSelection().getEndIndex());
             assertEquals(clipboard, engine.getClipboardContents());
@@ -137,25 +137,25 @@ class EngineImplTest {
         @DisplayName("Paste the content using a larger-sized selection")
         void testPasteClipboardLargerSelection() {
             String buffer = "This is the given buffer content.";
-            String bufferAfterPaste = "This is the given content.";
+            String bufferAfterPaste = "This is the given";
             String clipboard = "given";
             int beginIndex = buffer.indexOf(clipboard);
             int copyEndIndex = beginIndex + clipboard.length();
             int pasteEndIndex = buffer.indexOf("content") - 1;
-            int finalEndIndex = bufferAfterPaste.indexOf("content") - 1;
+            int finalEndIndex = bufferAfterPaste.length();
             Selection selection = engine.getSelection();
 
             engine.insert(buffer);
-            selection.setEndIndex(copyEndIndex);
             selection.setBeginIndex(beginIndex);
+            selection.setEndIndex(copyEndIndex);
             engine.copySelectedText();
 
             selection.setEndIndex(pasteEndIndex);
             engine.pasteClipboard();
 
             assertEquals(bufferAfterPaste, engine.getBufferContents());
-            assertEquals(beginIndex + clipboard.length(), engine.getSelection().getBeginIndex());
-            assertEquals(finalEndIndex, engine.getSelection().getEndIndex());
+            assertEquals(beginIndex + clipboard.length(), selection.getBeginIndex());
+            assertEquals(finalEndIndex, selection.getEndIndex());
             assertEquals(clipboard, engine.getClipboardContents());
         }
     }
@@ -179,8 +179,8 @@ class EngineImplTest {
         int endIndex = beginIndex + given.length();
 
         engine.insert(buffer.toString());
-        engine.getSelection().setEndIndex(endIndex);
         engine.getSelection().setBeginIndex(beginIndex);
+        engine.getSelection().setEndIndex(endIndex);
         engine.delete();
 
         assertEquals(buffer.delete(beginIndex, endIndex).toString(), engine.getBufferContents());

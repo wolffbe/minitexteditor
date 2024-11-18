@@ -5,7 +5,6 @@ public class SelectionImpl implements Selection {
     private final int BUFFER_BEGIN_INDEX;
     private int beginIndex;
     private int endIndex;
-    private int bufferEndIndex;
 
     /**
      * Constructs a fr.istic.aco.editor.selection.SelectionImpl object with the specified StringBuilder buffer.
@@ -20,7 +19,6 @@ public class SelectionImpl implements Selection {
         this.beginIndex = 0;
         this.endIndex = 0;
         this.BUFFER_BEGIN_INDEX = 0;
-        this.bufferEndIndex = buffer.length();
     }
 
     /**
