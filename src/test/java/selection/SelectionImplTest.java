@@ -62,8 +62,122 @@ class SelectionImplTest {
     @DisplayName("Set a begin index of a selection control object")
     class SetBeginIndex {
         @Test
+        @DisplayName("A begin index can be set to a value equal to a buffer begin index.")
+        public void testBeginIndexSameBufferBeginIndex() {
+            int beginIndex = selection.getBufferBeginIndex();
+
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value larger than a buffer begin index.")
+        public void testBeginIndexLargerThanBufferBeginIndex() {
+            int endIndex = selection.getBufferBeginIndex() + 2;
+            int beginIndex = selection.getBufferBeginIndex() + 1;
+
+            selection.setEndIndex(endIndex);
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value smaller than a buffer end index.")
+        public void testEndIndexSmallerThanBufferEndIndex() {
+            int endIndex = selection.getBufferEndIndex();
+            int beginIndex = selection.getBufferEndIndex() - 1;
+
+            selection.setEndIndex(endIndex);
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value equal to a buffer end index.")
+        public void testBeginIndexSameBufferEndIndex() {
+            int endIndex = selection.getBufferEndIndex();
+            int beginIndex = selection.getBufferEndIndex();
+
+            selection.setEndIndex(endIndex);
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index cannot be set to a value larger than a buffer end index.")
+        public void testBeginIndexLargerThanBufferEndIndex() {
+            int beginIndex = selection.getBufferEndIndex() + 1;
+
+            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
+                selection.setBeginIndex(beginIndex);
+            });
+
+            String expectedErrorMessage =
+                    "A begin index of " + beginIndex +
+                            " cannot be set to a value larger than a buffer end index of " +
+                            selection.getBufferEndIndex() + ".";
+            String errorMessage = exception.getMessage();
+            assertEquals(errorMessage, expectedErrorMessage);
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value smaller than an end index.")
+        public void testBeginIndexSmallerThanEndIndex() {
+            int beginIndex = 0;
+            int endIndex = 1;
+
+            selection.setEndIndex(endIndex);
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value equal to an end index index.")
+        public void testBeginIndexEqualToBeginIndex() {
+            int beginIndex = selection.getEndIndex();
+
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
+        @DisplayName("A begin index cannot be set to a value larger than an end index.")
+        public void testBeginIndexLargerThanEndIndex() {
+            int beginIndex = selection.getEndIndex() + 1;
+
+            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
+                selection.setBeginIndex(beginIndex);
+            });
+
+            String expectedErrorMessage =
+                    "A begin index of " + beginIndex +
+                            " cannot be set to a value larger than an end index of " +
+                            selection.getEndIndex() + ".";
+            String errorMessage = exception.getMessage();
+            assertEquals(errorMessage, expectedErrorMessage);
+        }
+
+        @Test
+        @DisplayName("A begin index can be set to a value larger than zero.")
+        public void testEndIndexLargerThanZero() {
+            int endIndex = 2;
+            int beginIndex = 1;
+
+            selection.setEndIndex(endIndex);
+            selection.setBeginIndex(beginIndex);
+
+            assertEquals(beginIndex, selection.getBeginIndex());
+        }
+
+        @Test
         @DisplayName("A begin index cannot be set to a value smaller than zero.")
-        public void testBeginIndexSmallerThanZero() {
+        public void testEndIndexSmallerThanZero() {
             int beginIndex = -1;
 
             Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -74,60 +188,118 @@ class SelectionImplTest {
             String errorMessage = exception.getMessage();
             assertEquals(errorMessage, expectedErrorMessage);
         }
-
-        @Test
-        @DisplayName("A begin index can be set to a value smaller than an end index.")
-        public void testBeginIndexSmallerThanEndIndex() {
-            int beginIndex = 1;
-            int endIndex = 2;
-
-            selection.setBeginIndex(beginIndex);
-            selection.setEndIndex(endIndex);
-
-            assertEquals(beginIndex, selection.getBeginIndex());
-        }
-
-        @Test
-        @DisplayName("A begin index can be set to a value equal to an end index.")
-        public void testBeginIndexEqualEndIndex() {
-            int index = 1;
-
-            selection.setBeginIndex(index);
-            selection.setEndIndex(index);
-
-            assertEquals(index, selection.getBeginIndex());
-        }
-
-        @Test
-        @DisplayName("A begin index can be set to the same value as a buffer end index.")
-        public void testEndIndexSameValueAsBufferEndIndex() {
-            int beginIndex = selection.getBufferEndIndex();
-
-            selection.setBeginIndex(beginIndex);
-
-            assertEquals(beginIndex, selection.getBufferEndIndex());
-        }
-
-        @Test
-        @DisplayName("A begin index cannot be set to a value larger than a buffer end index.")
-        public void beginIndexLargerThanBufferEndIndex() {
-            int beginIndex = selection.getBufferEndIndex() + 1;
-
-            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
-                selection.setBeginIndex(beginIndex);
-            });
-
-            String expectedErrorMessage =
-                    "A begin index of " + beginIndex +
-                            " cannot be larger than a buffer end index of " + selection.getBufferEndIndex() + ".";
-            String errorMessage = exception.getMessage();
-            assertEquals(errorMessage, expectedErrorMessage);
-        }
     }
 
     @Nested
     @DisplayName("Set the end index of a selection control object")
     class SetEndIndex {
+        @Test
+        @DisplayName("An end index can be set to a value equal to a buffer begin index.")
+        public void testEndIndexSameBufferBeginIndex() {
+            int endIndex = selection.getBufferBeginIndex();
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value larger than a buffer begin index.")
+        public void testEndIndexLargerThanBufferBeginIndex() {
+            int endIndex = selection.getBufferBeginIndex() + 1;
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value smaller than a buffer end index.")
+        public void testEndIndexSmallerThanBufferEndIndex() {
+            int index = selection.getBufferEndIndex() - 1;
+
+            selection.setEndIndex(index);
+
+            assertEquals(index, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value equal to a buffer end index.")
+        public void testEndIndexSameBufferEndIndex() {
+            int endIndex = selection.getBufferEndIndex();
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index cannot be set to a value larger than a buffer end index.")
+        public void testEndIndexLargerThanBufferEndIndex() {
+            int endIndex = selection.getBufferEndIndex() + 1;
+
+            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
+                selection.setEndIndex(endIndex);
+            });
+
+            String expectedErrorMessage =
+                    "An end index of " + endIndex +
+                            " cannot be set to a value larger than a buffer end index of " +
+                            selection.getBufferEndIndex() + ".";
+            String errorMessage = exception.getMessage();
+            assertEquals(errorMessage, expectedErrorMessage);
+        }
+
+        @Test
+        @DisplayName("An end index cannot be set to a value smaller than a begin index.")
+        public void testEndIndexSmallerThanBeginIndex() {
+            selection.setEndIndex(6);
+            selection.setBeginIndex(5);
+
+            int endIndex = selection.getBeginIndex() - 1;
+
+            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
+                selection.setEndIndex(endIndex);
+            });
+
+            String expectedErrorMessage =
+                    "An end index of " + endIndex +
+                            " cannot be set to a value smaller than a begin index of " +
+                            selection.getBeginIndex() + ".";
+            String errorMessage = exception.getMessage();
+            assertEquals(errorMessage, expectedErrorMessage);
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value equal to a begin index.")
+        public void testEndIndexEqualToBeginIndex() {
+            int endIndex = selection.getBeginIndex();
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value larger than a begin index.")
+        public void testEndIndexLargerThanBeginIndex() {
+            int endIndex = selection.getBeginIndex() + 1;
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("An end index can be set to a value larger than zero.")
+        public void testEndIndexLargerThanZero() {
+            int endIndex = 1;
+
+            selection.setEndIndex(endIndex);
+
+            assertEquals(endIndex, selection.getEndIndex());
+        }
+
         @Test
         @DisplayName("An end index cannot be set to a value smaller than zero.")
         public void testEndIndexSmallerThanZero() {
@@ -138,55 +310,6 @@ class SelectionImplTest {
             });
 
             String expectedErrorMessage = "An end index cannot be set to a value smaller than zero.";
-            String errorMessage = exception.getMessage();
-            assertEquals(errorMessage, expectedErrorMessage);
-        }
-
-        @Test
-        @DisplayName("An end index can be set to a value larger than a begin index.")
-        public void testBeginIndexSmallerThanEndIndex() {
-            int beginIndex = 1;
-            int endIndex = 2;
-
-            selection.setBeginIndex(beginIndex);
-            selection.setEndIndex(endIndex);
-
-            assertEquals(endIndex, selection.getEndIndex());
-        }
-
-        @Test
-        @DisplayName("An end index can be set to a value equal to a begin index.")
-        public void testBeginIndexEqualEndIndex() {
-            int index = 1;
-
-            selection.setBeginIndex(index);
-            selection.setEndIndex(index);
-
-            assertEquals(index, selection.getEndIndex());
-        }
-
-        @Test
-        @DisplayName("An end index can be set to the same value as a buffer end index.")
-        public void testEndIndexSameValueAsBufferEndIndex() {
-            int index = randomBuffer.length();
-
-            selection.setEndIndex(index);
-
-            assertEquals(index, selection.getBufferEndIndex());
-        }
-
-        @Test
-        @DisplayName("An end index cannot be set to a value larger than a buffer end index.")
-        public void beginIndexLargerThanBufferEndIndex() {
-            int endIndex = selection.getBufferEndIndex() + 1;
-
-            Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
-                selection.setEndIndex(endIndex);
-            });
-
-            String expectedErrorMessage =
-                    "An end index of " + endIndex +
-                            " cannot be larger than a buffer end index of " + selection.getBufferEndIndex() + ".";
             String errorMessage = exception.getMessage();
             assertEquals(errorMessage, expectedErrorMessage);
         }

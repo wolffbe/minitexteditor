@@ -5,6 +5,7 @@ public class SelectionImpl implements Selection {
     private final int BUFFER_BEGIN_INDEX;
     private int beginIndex;
     private int endIndex;
+    private int bufferEndIndex;
 
     /**
      * Constructs a fr.istic.aco.editor.selection.SelectionImpl object with the specified StringBuilder buffer.
@@ -19,6 +20,7 @@ public class SelectionImpl implements Selection {
         this.beginIndex = 0;
         this.endIndex = 0;
         this.BUFFER_BEGIN_INDEX = 0;
+        this.bufferEndIndex = buffer.length();
     }
 
     /**
@@ -39,12 +41,22 @@ public class SelectionImpl implements Selection {
      * @throws IndexOutOfBoundsException if the beginIndex is out of bounds
      */
     public void setBeginIndex(int beginIndex) {
-        if (beginIndex > buffer.length()) {
+        if (beginIndex < 0) {
+            throw new IndexOutOfBoundsException("A begin index cannot be set to a value smaller than zero.");
+        } else if (beginIndex > this.getBufferEndIndex()) {
             throw new IndexOutOfBoundsException(
                     "A begin index of " + beginIndex +
-                            " cannot be larger than a buffer end index of " + buffer.length() + ".");
-        } else if (beginIndex < 0) {
-            throw new IndexOutOfBoundsException("A begin index cannot be set to a value smaller than zero.");
+                            " cannot be set to a value larger than a buffer end index of " +
+                            this.getBufferEndIndex() + ".");
+        } else if (beginIndex < this.getBufferBeginIndex()) {
+            throw new IndexOutOfBoundsException(
+                    "A begin index of " + beginIndex +
+                            " cannot be set to a value smaller than a buffer begin index of " +
+                            this.getBufferBeginIndex() + ".");
+        } else if (beginIndex > this.getEndIndex()) {
+            throw new IndexOutOfBoundsException(
+                    "A begin index of " + beginIndex +
+                            " cannot be set to a value larger than an end index of " + this.getEndIndex() + ".");
         } else {
             this.beginIndex = beginIndex;
         }
@@ -69,12 +81,23 @@ public class SelectionImpl implements Selection {
      * @throws IndexOutOfBoundsException if the beginIndex is out of bounds
      */
     public void setEndIndex(int endIndex) {
-        if (endIndex > buffer.length()) {
+
+        if (endIndex < 0) {
+            throw new IndexOutOfBoundsException("An end index cannot be set to a value smaller than zero.");
+        } else if (endIndex < this.getBufferBeginIndex()) {
             throw new IndexOutOfBoundsException(
                     "An end index of " + endIndex +
-                            " cannot be larger than a buffer end index of " + buffer.length() + ".");
-        } else if (endIndex < 0) {
-            throw new IndexOutOfBoundsException("An end index cannot be set to a value smaller than zero.");
+                            " cannot be set to a value smaller than a buffer begin index of " +
+                            this.getBufferBeginIndex() + ".");
+        } else if (endIndex < getBeginIndex()) {
+            throw new IndexOutOfBoundsException(
+                    "An end index of " + endIndex +
+                            " cannot be set to a value smaller than a begin index of " + this.getBeginIndex() + ".");
+        } else if (endIndex > this.getBufferEndIndex()) {
+            throw new IndexOutOfBoundsException(
+                    "An end index of " + endIndex +
+                            " cannot be set to a value larger than a buffer end index of " +
+                            this.getBufferEndIndex() + ".");
         } else {
             this.endIndex = endIndex;
         }

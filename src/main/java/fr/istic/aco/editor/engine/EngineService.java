@@ -20,14 +20,8 @@ public class EngineService {
     }
 
     public void updateSelection(int beginIndex, int endIndex) {
-        if (beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException(
-                    "A begin index of " + beginIndex +
-                            " cannot be greater than an end index of " + endIndex + ".");
-        } else {
-            engine.getSelection().setBeginIndex(beginIndex);
-            engine.getSelection().setEndIndex(endIndex);
-        }
+        engine.getSelection().setBeginIndex(beginIndex);
+        engine.getSelection().setEndIndex(endIndex);
     }
 
     public void cutSelectedText() {
