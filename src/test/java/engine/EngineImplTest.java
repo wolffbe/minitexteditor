@@ -141,7 +141,7 @@ class EngineImplTest {
             String clipboard = "given";
             int beginIndex = buffer.indexOf(clipboard);
             int copyEndIndex = beginIndex + clipboard.length();
-            int pasteEndIndex = buffer.indexOf("content") - 1;
+            int pasteEndIndex = buffer.length();
             int finalEndIndex = bufferAfterPaste.length();
             Selection selection = engine.getSelection();
 
@@ -160,29 +160,116 @@ class EngineImplTest {
         }
     }
 
-    @Test
-    @DisplayName("Insert text into the buffer")
-    void testInsertTextIntoBuffer() {
-        String buffer = "This is the given buffer content.";
+    @Nested
+    @DisplayName("Insert into the buffer")
+    class InsertIntoTheBuffer {
+        @Test
+        @DisplayName("Text into an empty buffer")
+        void testInsertIntoBuffer() {
+            String buffer = "This is the given buffer content.";
 
-        engine.insert(buffer);
+            engine.insert(buffer);
 
-        assertEquals(buffer, engine.getBufferContents());
+            assertEquals(buffer, engine.getBufferContents());
+        }
+
+        @Test
+        @DisplayName("Characters into an empty buffer")
+        void testInsertCharacters() {
+            String buffer = "test";
+            int beginIndex = 0;
+            int endIndex = 0;
+            String[] characters = {"t", "e", "s", "t"};
+
+            engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
+
+            for (String s : characters) {
+                engine.insert(s);
+            }
+
+            assertEquals(beginIndex + characters.length, engine.getSelection().getBeginIndex());
+            assertEquals(beginIndex + characters.length, engine.getSelection().getEndIndex());
+            assertEquals(buffer, engine.getBufferContents());
+        }
+
+        @Test
+        @DisplayName("Characters overwriting a selection")
+        void testInsertOverwritingSelection() {
+            String buffer = "This is the given buffer content.";
+            String select = "the given";
+            String finalBuffer = "This is the buffer content.";
+            int beginIndex = buffer.indexOf(select);
+            int endIndex = beginIndex + select.length();
+            String[] characters = {"t", "h", "e"};
+
+            engine.insert(buffer);
+            engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
+            for (String s : characters) {
+                engine.insert(s);
+            }
+
+            assertEquals(finalBuffer, engine.getBufferContents());
+            assertEquals(beginIndex + characters.length, engine.getSelection().getBeginIndex());
+            assertEquals(beginIndex + characters.length, engine.getSelection().getEndIndex());
+        }
     }
 
-    @Test
-    @DisplayName("Delete text from the buffer")
-    void testDeleteTextFromBuffer() {
-        StringBuilder buffer = new StringBuilder("This is the given buffer content.");
-        String given = "given";
-        int beginIndex = buffer.indexOf(given);
-        int endIndex = beginIndex + given.length();
+    @Nested
+    @DisplayName("Delete from the buffer")
+    class DeleteTextFromBuffer {
+        @Test
+        @DisplayName("Delete text from the buffer")
+        void testDeleteTextFromBuffer() {
+            StringBuilder buffer = new StringBuilder("This is the given buffer content.");
+            String given = "given";
+            int beginIndex = buffer.indexOf(given);
+            int endIndex = beginIndex + given.length();
 
-        engine.insert(buffer.toString());
-        engine.getSelection().setBeginIndex(beginIndex);
-        engine.getSelection().setEndIndex(endIndex);
-        engine.delete();
+            engine.insert(buffer.toString());
+            engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
+            engine.delete();
 
-        assertEquals(buffer.delete(beginIndex, endIndex).toString(), engine.getBufferContents());
+            assertEquals(buffer.delete(beginIndex, endIndex).toString(), engine.getBufferContents());
+        }
+
+        @Test
+        @DisplayName("Delete individual characters from the buffer")
+        void testIndividualCharactersFromBuffer() {
+            StringBuilder buffer = new StringBuilder("This is the given buffer content.");
+            String delete = " content";
+            String finalBuffer = "This is the given buffer.";
+            int index = buffer.indexOf(delete) + delete.length();
+
+            engine.insert(buffer.toString());
+            engine.getSelection().setBeginIndex(index);
+            engine.getSelection().setEndIndex(index);
+            for (int i=0; i < delete.length(); i++) {
+                engine.delete();
+            }
+
+            assertEquals(finalBuffer, engine.getBufferContents());
+        }
+
+        @Test
+        @DisplayName("Delete individual characters from the beginning of buffer")
+        void testIndividualCharactersFromTheBeginningOfTheBuffer() {
+            String buffer = "This is the given buffer content.";
+            int beginIndex = 0;
+            int endIndex = 0;
+
+            engine.insert(buffer);
+            engine.getSelection().setBeginIndex(0);
+            engine.getSelection().setEndIndex(0);
+            engine.delete();
+
+            assertEquals(buffer, engine.getBufferContents());
+            assertEquals(beginIndex, engine.getSelection().getBeginIndex());
+            assertEquals(endIndex, engine.getSelection().getEndIndex());
+        }
     }
+
+
 }

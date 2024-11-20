@@ -2,6 +2,7 @@ package engine;
 
 import fr.istic.aco.editor.engine.EngineController;
 import fr.istic.aco.editor.engine.EngineService;
+import fr.istic.aco.editor.engine.dto.Selection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,51 +38,44 @@ class EngineControllerTest {
     }
 
     @Test
-    @DisplayName("Get the content of the buffer")
+    @DisplayName("Get the engine state")
     void testGetBufferContents() {
-        String mockBuffer = "This is the buffer content.";
-        when(engineService.getBufferContents()).thenReturn(mockBuffer);
+        String mockBuffer = "This is the engine state.";
+        when(engineService.getEngineState()).thenReturn(mockBuffer);
 
-        ResponseEntity<String> response = engineController.getBufferContents();
+        ResponseEntity<String> response = engineController.getEngineState();
 
         assertEquals(200, response.getStatusCode().value());
+        System.out.println(response);
         assertEquals(mockBuffer, response.getBody());
-        verify(engineService, times(1)).getBufferContents();
-    }
-
-    @Test
-    @DisplayName("Get the content of the clipboard")
-    void testGetClipboardContents() {
-        String mockClipboard = "This is the clipboard content.";
-        when(engineService.getClipboardContents()).thenReturn(mockClipboard);
-
-        ResponseEntity<String> response = engineController.getClipboardContents();
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(mockClipboard, response.getBody());
-        verify(engineService, times(1)).getClipboardContents();
+        verify(engineService, times(1)).getEngineState();
     }
 
     @Test
     @DisplayName("Update a selection in a valid range")
     void testValidUpdateSelection() {
-        int beginIndex = 5;
-        int endIndex = 10;
+        Selection selection = new Selection(10, 15);
+        int beginIndex = selection.getBeginIndex();
+        int endIndex = selection.getEndIndex();
 
-        ResponseEntity<String> response = engineController.updateSelection(beginIndex, endIndex);
+        ResponseEntity<String> response = engineController.updateSelection(selection);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(engineService, times(1)).updateSelection(beginIndex, endIndex);
+        verify(engineService, times(1)).updateSelection(
+                beginIndex,
+                endIndex);
     }
 
     @ParameterizedTest
     @CsvSource({"-1,2", "-3,-1", "3,1"})
     @DisplayName("Update a selection in an invalid range")
     void testInvalidUpdateSelection(int beginIndex, int endIndex) {
+        Selection selection = new Selection(beginIndex, endIndex);
+
         doThrow(new IndexOutOfBoundsException("Invalid selection range"))
                 .when(engineService).updateSelection(beginIndex, endIndex);
 
-        ResponseEntity<String> response = engineController.updateSelection(beginIndex, endIndex);
+        ResponseEntity<String> response = engineController.updateSelection(selection);
 
         assertEquals(400, response.getStatusCode().value());
         verify(engineService, times(1)).updateSelection(beginIndex, endIndex);

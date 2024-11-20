@@ -46,11 +46,6 @@ public class SelectionImpl implements Selection {
                     "A begin index of " + beginIndex +
                             " cannot be set to a value larger than a buffer end index of " +
                             this.getBufferEndIndex() + ".");
-        } else if (beginIndex < this.getBufferBeginIndex()) {
-            throw new IndexOutOfBoundsException(
-                    "A begin index of " + beginIndex +
-                            " cannot be set to a value smaller than a buffer begin index of " +
-                            this.getBufferBeginIndex() + ".");
         } else if (beginIndex > this.getEndIndex()) {
             throw new IndexOutOfBoundsException(
                     "A begin index of " + beginIndex +
@@ -82,12 +77,7 @@ public class SelectionImpl implements Selection {
 
         if (endIndex < 0) {
             throw new IndexOutOfBoundsException("An end index cannot be set to a value smaller than zero.");
-        } else if (endIndex < this.getBufferBeginIndex()) {
-            throw new IndexOutOfBoundsException(
-                    "An end index of " + endIndex +
-                            " cannot be set to a value smaller than a buffer begin index of " +
-                            this.getBufferBeginIndex() + ".");
-        } else if (endIndex < getBeginIndex()) {
+        } else if (endIndex < this.getBeginIndex()) {
             throw new IndexOutOfBoundsException(
                     "An end index of " + endIndex +
                             " cannot be set to a value smaller than a begin index of " + this.getBeginIndex() + ".");

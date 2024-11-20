@@ -86,9 +86,11 @@ public class EngineImpl implements Engine {
     @Override
     public void insert(String s) {
         if(selection.getEndIndex() - selection.getBeginIndex() > s.length()) {
-            buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
+            buffer.replace(selection.getBeginIndex(), selection.getEndIndex(), s);
         }
-        buffer.replace(selection.getBeginIndex(), selection.getEndIndex(), s);
+        if(selection.getBeginIndex() == selection.getEndIndex()) {
+            buffer.insert(selection.getBeginIndex(), s);
+        }
         selection.setEndIndex(selection.getBeginIndex() + s.length());
         selection.setBeginIndex(selection.getBeginIndex() + s.length());
     }
@@ -98,7 +100,15 @@ public class EngineImpl implements Engine {
      */
     @Override
     public void delete() {
-        buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
-        selection.setEndIndex(selection.getBeginIndex());
+        if(selection.getBeginIndex() == selection.getEndIndex()) {
+            if(selection.getEndIndex() != 0){
+                selection.setBeginIndex(selection.getBeginIndex() - 1);
+                selection.setEndIndex(selection.getEndIndex() - 1);
+                buffer.delete(selection.getEndIndex(),selection.getEndIndex()+1);
+            }
+        } else {
+            buffer.delete(selection.getBeginIndex(), selection.getEndIndex());
+            selection.setEndIndex(selection.getBeginIndex());
+        }
     }
 }

@@ -11,6 +11,25 @@ public class EngineService {
         this.engine = engine;
     }
 
+    public String getEngineState() {
+        String buffer = engine.getBufferContents();
+        String clipboard = engine.getClipboardContents();
+        int beginIndex = engine.getSelection().getBeginIndex();
+        int endIndex = engine.getSelection().getEndIndex();
+        int bufferEndIndex = engine.getSelection().getBufferEndIndex();
+
+        return String.format(
+                "{" +
+                        "\"buffer\": \"%s\"," +
+                        "\"clipboard\": \"%s\"," +
+                        "\"beginIndex\": %d," +
+                        "\"endIndex\": %d," +
+                        "\"bufferEndIndex\": %d" +
+                        "}",
+                buffer, clipboard, beginIndex, endIndex, bufferEndIndex
+        );
+    }
+
     public String getBufferContents() {
         return engine.getBufferContents();
     }
@@ -20,8 +39,13 @@ public class EngineService {
     }
 
     public void updateSelection(int beginIndex, int endIndex) {
-        engine.getSelection().setBeginIndex(beginIndex);
-        engine.getSelection().setEndIndex(endIndex);
+        if(beginIndex == endIndex && beginIndex > engine.getSelection().getBeginIndex()){
+            engine.getSelection().setEndIndex(endIndex);
+            engine.getSelection().setBeginIndex(beginIndex);
+        } else {
+            engine.getSelection().setBeginIndex(beginIndex);
+            engine.getSelection().setEndIndex(endIndex);
+        }
     }
 
     public void cutSelectedText() {
@@ -29,7 +53,9 @@ public class EngineService {
     }
 
     public void copySelectedText() {
-        engine.copySelectedText();
+        if(engine.getSelection().getBeginIndex() != engine.getSelection().getEndIndex()) {
+            engine.copySelectedText();
+        }
     }
 
     public void pasteClipboard() {
