@@ -1,4 +1,6 @@
-package fr.istic.aco.editor;
+package fr.istic.aco.editor.engine;
+
+import fr.istic.aco.editor.selection.Selection;
 
 /**
  * Main API for the text editing engine
