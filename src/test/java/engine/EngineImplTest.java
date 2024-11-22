@@ -162,7 +162,7 @@ class EngineImplTest {
 
     @Nested
     @DisplayName("Insert into the buffer")
-    class InsertIntoTheBuffer {
+    class InsertionIntoTheBuffer {
         @Test
         @DisplayName("Text into an empty buffer")
         void testInsertIntoBuffer() {
@@ -218,7 +218,7 @@ class EngineImplTest {
 
     @Nested
     @DisplayName("Delete from the buffer")
-    class DeleteTextFromBuffer {
+    class DeletionTextFromBuffer {
         @Test
         @DisplayName("Delete text from the buffer")
         void testDeleteTextFromBuffer() {

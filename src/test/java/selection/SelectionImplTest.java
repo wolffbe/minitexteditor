@@ -60,7 +60,7 @@ class SelectionImplTest {
 
     @Nested
     @DisplayName("Set a begin index of a selection control object")
-    class SetBeginSelection {
+    class SetBeginSelectionDto {
         @Test
         @DisplayName("A begin index can be set to a value equal to a buffer begin index.")
         public void testBeginIndexSameBufferBeginIndex() {
@@ -192,7 +192,7 @@ class SelectionImplTest {
 
     @Nested
     @DisplayName("Set the end index of a selection control object")
-    class SetEndSelection {
+    class SetEndSelectionDto {
         @Test
         @DisplayName("An end index can be set to a value equal to a buffer begin index.")
         public void testEndIndexSameBufferBeginIndex() {
