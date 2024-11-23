@@ -2,6 +2,7 @@ package fr.istic.aco.editor.engine;
 
 import fr.istic.aco.editor.command.*;
 import fr.istic.aco.editor.selection.dto.SelectionDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class EngineController {
 
     @GetMapping()
     public ResponseEntity<String> getEngineState() {
-        return ResponseEntity.ok(this.toString());
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 
     @PostMapping("/select")
@@ -33,12 +34,13 @@ public class EngineController {
 
         Command select = new Selection(engine);
 
+        engineInvoker.setCommand(select);
+
         try {
-            engineInvoker.setCommand(select);
             engineInvoker.execute(params);
-            return ResponseEntity.ok(this.toString());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(EngineSerializer.toString(engine));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -49,7 +51,7 @@ public class EngineController {
         engineInvoker.setCommand(cut);
         engineInvoker.execute(null);
 
-        return ResponseEntity.ok(this.toString());
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 
     @PostMapping("/copy")
@@ -59,7 +61,7 @@ public class EngineController {
         engineInvoker.setCommand(copy);
         engineInvoker.execute(null);
 
-        return ResponseEntity.ok(this.toString());
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 
     @PostMapping("/paste")
@@ -69,7 +71,7 @@ public class EngineController {
         engineInvoker.setCommand(paste);
         engineInvoker.execute(null);
 
-        return ResponseEntity.ok(this.toString());
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 
     @PostMapping("/insert")
@@ -82,7 +84,7 @@ public class EngineController {
         engineInvoker.setCommand(insertion);
         engineInvoker.execute(params);
 
-        return ResponseEntity.ok(this.toString());
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 
     @DeleteMapping("/delete")
@@ -92,26 +94,6 @@ public class EngineController {
         engineInvoker.setCommand(delete);
         engineInvoker.execute(null);
 
-        return ResponseEntity.ok(this.toString());
-    }
-
-    @Override
-    public String toString() {
-        String buffer = engine.getBufferContents();
-        String clipboard = engine.getClipboardContents();
-        int beginIndex = engine.getSelection().getBeginIndex();
-        int endIndex = engine.getSelection().getEndIndex();
-        int bufferEndIndex = engine.getSelection().getBufferEndIndex();
-
-        return String.format(
-                "{" +
-                        "\"buffer\": \"%s\"," +
-                        "\"clipboard\": \"%s\"," +
-                        "\"beginIndex\": %d," +
-                        "\"endIndex\": %d," +
-                        "\"bufferEndIndex\": %d" +
-                        "}",
-                buffer, clipboard, beginIndex, endIndex, bufferEndIndex
-        );
+        return ResponseEntity.ok(EngineSerializer.toString(engine));
     }
 }
