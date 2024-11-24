@@ -30,6 +30,7 @@ editor.addEventListener('keydown', async (event) => {
             getEngineState();
         });
     }
+
 });
 
 editor.addEventListener('contextmenu', function(event) {
@@ -45,4 +46,11 @@ editor.addEventListener("click", async (event) => {
 });
 editor.addEventListener("keyup", async (event) => {
     await checkSelection();
+});
+
+recordButton.addEventListener('click', () => {
+    record();
+});
+replayButton.addEventListener('click', async () => {
+    await replay();
 });
