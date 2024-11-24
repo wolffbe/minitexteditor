@@ -1,4 +1,5 @@
 package fr.istic.aco.editor.memento;
 
-public interface Memento {
+public interface Memento<T> {
+    T state();
 }

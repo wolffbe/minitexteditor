@@ -1,6 +1,6 @@
 package fr.istic.aco.editor.memento;
 
-public interface Originator {
-    MementoImpl saveState();
-    void restoreState(MementoImpl memento);
+public interface Originator<T> {
+    Memento<T> saveState();
+    void restoreState(Memento<T> memento);
 }

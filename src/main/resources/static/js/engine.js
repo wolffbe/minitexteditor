@@ -12,7 +12,6 @@ async function getEngineState() {
       setEngineState(data);
   } catch (error) {
       console.error('Error fetching engine state:', error);
-      editor.value = 'Error fetching engine state';
   }
 }
 
@@ -24,7 +23,7 @@ function setEngineState(data) {
         'beginIndex' in data &&
         'endIndex' in data &&
         'bufferEndIndex' in data &&
-        'mementoLastItemIndex' in data) {
+        'mementoCount' in data) {
             editor.value = data.buffer;
 
             engine.mementoIndex = data.mementoIndex;
@@ -33,7 +32,7 @@ function setEngineState(data) {
             engine.beginIndex = data.beginIndex;
             engine.endIndex = data.endIndex;
             engine.bufferEndIndex = data.bufferEndIndex;
-            engine.mementoLastItemIndex = data.mementoLastItemIndex;
+            engine.mementoCount = data.mementoCount;
 
             editor.selectionStart = data.beginIndex;
             editor.selectionEnd = data.endIndex;

@@ -1,7 +1,7 @@
 package fr.istic.aco.editor.memento;
 
-public interface Caretaker {
-    void addMemento(MementoImpl memento);
-    MementoImpl getMemento(int index);
-    Integer getMementoLastItemIndex();
+public interface Caretaker<T> {
+    void addMemento(Memento<T> memento);
+    Memento<T> getMemento(int index);
+    int getMementoCount();
 }

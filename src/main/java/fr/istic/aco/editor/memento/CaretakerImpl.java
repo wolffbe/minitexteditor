@@ -6,21 +6,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CaretakerImpl implements Caretaker {
-    private final List<MementoImpl> mementoList = new ArrayList<>();
+public class CaretakerImpl<T> implements Caretaker<T> {
+    private final List<Memento<T>> mementoList = new ArrayList<>();
 
     @Override
-    public void addMemento(MementoImpl memento) {
+    public void addMemento(Memento<T> memento) {
         mementoList.add(memento);
     }
 
     @Override
-    public MementoImpl getMemento(int index) {
+    public Memento<T> getMemento(int index) {
+        if (index < 0 || index >= mementoList.size()) {
+            throw new IndexOutOfBoundsException("Invalid memento index: " + index);
+        }
         return mementoList.get(index);
     }
 
     @Override
-    public Integer getMementoLastItemIndex() {
+    public int getMementoCount() {
         return mementoList.size() - 1;
     }
 }

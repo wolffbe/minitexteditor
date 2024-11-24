@@ -4,7 +4,7 @@ import fr.istic.aco.editor.engine.EngineImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OriginatorImpl implements Originator {
+public class OriginatorImpl implements Originator<EngineImpl> {
     private EngineImpl state;
 
     public void setState(EngineImpl state) {
@@ -12,12 +12,12 @@ public class OriginatorImpl implements Originator {
     }
 
     @Override
-    public MementoImpl saveState() {
+    public Memento<EngineImpl> saveState() {
         return new MementoImpl(state);
     }
 
     @Override
-    public void restoreState(MementoImpl memento) {
-        this.state = memento.getState();
+    public void restoreState(Memento<EngineImpl> memento) {
+        this.state = memento.state();
     }
 }

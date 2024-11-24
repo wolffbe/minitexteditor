@@ -11,7 +11,7 @@ async function replay() {
     let record = recordedMementoIndex;
 
     try {
-        for (; record <= engine.mementoLastItemIndex; record++) {
+        for (; record <= engine.mementoCount; record++) {
             const response = await fetch(`${url}?index=${record}`, {
                 method: 'GET',
             });

@@ -3,8 +3,8 @@ package fr.istic.aco.editor.engine;
 import fr.istic.aco.editor.memento.CaretakerImpl;
 
 public class EngineSerializer {
-    public static String toResponseEntityBody(int mementoIndex, CaretakerImpl caretaker) {
-        EngineImpl engine = caretaker.getMemento(mementoIndex).getState();
+    public static String toResponseEntityBody(int mementoIndex, CaretakerImpl<EngineImpl> caretaker) {
+        EngineImpl engine = caretaker.getMemento(mementoIndex).state();
 
         String buffer = engine.getBufferContents();
         String clipboard = engine.getClipboardContents();
@@ -12,7 +12,7 @@ public class EngineSerializer {
         int endIndex = engine.getSelection().getEndIndex();
         int bufferEndIndex = engine.getSelection().getBufferEndIndex();
 
-        int mementoLastItemIndex = caretaker.getMementoLastItemIndex();
+        int mementoCount = caretaker.getMementoCount();
 
         return String.format(
                 "{" +
@@ -22,9 +22,9 @@ public class EngineSerializer {
                         "\"beginIndex\": %d," +
                         "\"endIndex\": %d," +
                         "\"bufferEndIndex\": %d," +
-                        "\"mementoLastItemIndex\": %d" +
+                        "\"mementoCount\": %d" +
                 "}",
-                mementoIndex, buffer, clipboard, beginIndex, endIndex, bufferEndIndex, mementoLastItemIndex
+                mementoIndex, buffer, clipboard, beginIndex, endIndex, bufferEndIndex, mementoCount
         );
     }
 }
