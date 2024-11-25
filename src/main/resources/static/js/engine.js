@@ -23,7 +23,7 @@ function setEngineState(data) {
         'beginIndex' in data &&
         'endIndex' in data &&
         'bufferEndIndex' in data &&
-        'mementoCount' in data) {
+        'lastMementoIndex' in data) {
             editor.value = data.buffer;
 
             engine.mementoIndex = data.mementoIndex;
@@ -32,7 +32,7 @@ function setEngineState(data) {
             engine.beginIndex = data.beginIndex;
             engine.endIndex = data.endIndex;
             engine.bufferEndIndex = data.bufferEndIndex;
-            engine.mementoCount = data.mementoCount;
+            engine.lastMementoIndex = data.lastMementoIndex;
 
             editor.selectionStart = data.beginIndex;
             editor.selectionEnd = data.endIndex;

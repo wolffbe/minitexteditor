@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', getEngineState);
 
 editor.addEventListener('keydown', async (event) => {
+    if(event.key === "ArrowUp" ||
+       event.key === "ArrowDown" ||
+       event.key === "ArrowLeft" ||
+       event.key === "ArrowRight") {
+        await checkSelection();
+    }
     if(event.ctrlKey && event.key === "c") {
         await copy().then(() => {
             getEngineState();
@@ -38,13 +44,7 @@ editor.addEventListener('contextmenu', function(event) {
     alert("The context menu is currently not supported!");
 });
 
-editor.addEventListener("input", async (event) => {
-    await checkSelection();
-});
 editor.addEventListener("click", async (event) => {
-    await checkSelection();
-});
-editor.addEventListener("keyup", async (event) => {
     await checkSelection();
 });
 

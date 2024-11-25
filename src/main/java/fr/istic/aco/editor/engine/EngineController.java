@@ -32,13 +32,13 @@ public class EngineController {
 
     @GetMapping()
     public ResponseEntity<String> getEngineState() {
-        int mementoIndex = caretaker.getMementoCount();
+        int mementoIndex = caretaker.getLastMementoIndex();
         return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
     }
 
     @PostMapping("/select")
     public ResponseEntity<String> updateSelection(@RequestBody SelectionDto selection) {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Map<String, Object> params = new HashMap<>();
         params.put("beginIndex", selection.beginIndex());
@@ -54,7 +54,7 @@ public class EngineController {
             originator.setState(engine);
             caretaker.addMemento(originator.saveState());
 
-            return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+            return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -62,7 +62,7 @@ public class EngineController {
 
     @PostMapping("/cut")
     public ResponseEntity<String> cutSelectedText() {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Command cut = new Cut(engine);
 
@@ -72,12 +72,12 @@ public class EngineController {
         originator.setState(engine);
         caretaker.addMemento(originator.saveState());
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
     }
 
     @PostMapping("/copy")
     public ResponseEntity<String> copySelectedText() {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Command copy = new Copy(engine);
 
@@ -87,12 +87,12 @@ public class EngineController {
         originator.setState(engine);
         caretaker.addMemento(originator.saveState());
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
     }
 
     @PostMapping("/paste")
     public ResponseEntity<String> pasteClipboard() {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Command paste = new Paste(engine);
 
@@ -102,12 +102,12 @@ public class EngineController {
         originator.setState(engine);
         caretaker.addMemento(originator.saveState());
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
     }
 
     @PostMapping("/insert")
     public ResponseEntity<String> insertText(@RequestBody String text) {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Map<String, Object> params = new HashMap<>();
         params.put("text", text);
@@ -120,12 +120,12 @@ public class EngineController {
         originator.setState(engine);
         caretaker.addMemento(originator.saveState());
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteSelectedText() {
-        int mementoIndex = caretaker.getMementoCount() + 1;
+        int nextMementoIndex = caretaker.getNextMementoIndex();
 
         Command delete = new Deletion(engine);
 
@@ -135,13 +135,13 @@ public class EngineController {
         originator.setState(engine);
         caretaker.addMemento(originator.saveState());
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(nextMementoIndex, caretaker));
     }
 
     @GetMapping("/replay")
-    public ResponseEntity<String> replay(@RequestParam Integer index) {
-        originator.restoreState(caretaker.getMemento(index));
+    public ResponseEntity<String> replay(@RequestParam Integer mementoIndex) {
+        originator.restoreState(caretaker.getMemento(mementoIndex));
 
-        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(index, caretaker));
+        return ResponseEntity.ok(EngineSerializer.toResponseEntityBody(mementoIndex, caretaker));
     }
 }

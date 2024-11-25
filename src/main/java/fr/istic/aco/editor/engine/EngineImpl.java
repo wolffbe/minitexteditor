@@ -17,10 +17,10 @@ public class EngineImpl implements Engine {
         this.selection = new SelectionImpl(this.buffer);
     }
 
-    public EngineImpl(String buffer, String clipboard, Selection selection) {
+    public EngineImpl(String buffer, String clipboard, SelectionImpl selection) {
         this.buffer = new StringBuilder(buffer);
         this.clipboard = clipboard;
-        this.selection = (SelectionImpl) selection;
+        this.selection = selection;
     }
 
     /**

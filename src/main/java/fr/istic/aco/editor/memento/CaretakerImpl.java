@@ -22,8 +22,11 @@ public class CaretakerImpl<T> implements Caretaker<T> {
         return mementoList.get(index);
     }
 
-    @Override
-    public int getMementoCount() {
+    public int getNextMementoIndex() {
+        return mementoList.size();
+    }
+
+    public int getLastMementoIndex() {
         return mementoList.size() - 1;
     }
 }

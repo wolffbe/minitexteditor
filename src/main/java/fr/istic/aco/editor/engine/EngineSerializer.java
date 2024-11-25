@@ -12,7 +12,7 @@ public class EngineSerializer {
         int endIndex = engine.getSelection().getEndIndex();
         int bufferEndIndex = engine.getSelection().getBufferEndIndex();
 
-        int mementoCount = caretaker.getMementoCount();
+        int lastMementoIndex = caretaker.getLastMementoIndex();
 
         return String.format(
                 "{" +
@@ -22,9 +22,9 @@ public class EngineSerializer {
                         "\"beginIndex\": %d," +
                         "\"endIndex\": %d," +
                         "\"bufferEndIndex\": %d," +
-                        "\"mementoCount\": %d" +
+                        "\"lastMementoIndex\": %d" +
                 "}",
-                mementoIndex, buffer, clipboard, beginIndex, endIndex, bufferEndIndex, mementoCount
+                mementoIndex, buffer, clipboard, beginIndex, endIndex, bufferEndIndex, lastMementoIndex
         );
     }
 }
