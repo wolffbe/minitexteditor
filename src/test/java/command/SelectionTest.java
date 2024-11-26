@@ -38,8 +38,8 @@ class SelectionTest {
     }
 
     @Test
-    @DisplayName("Select text")
-    void testValidSelection() {
+    @DisplayName("Execute select command")
+    void testSelectValidSelection() {
         int beginIndex = 0;
         int endIndex = 1;
 
@@ -111,7 +111,7 @@ class SelectionTest {
 
     @Test
     @DisplayName("Select with missing begin index")
-    void testInsertMissingBeginIndex() {
+    void testSelectMissingBeginIndex() {
         int beginIndex = 0;
         int endIndex = 1;
 
@@ -133,7 +133,7 @@ class SelectionTest {
 
     @Test
     @DisplayName("Select with missing end index")
-    void testInsertMissingEndIndex() {
+    void testSelectMissingEndIndex() {
         int beginIndex = 0;
         int endIndex = 1;
 

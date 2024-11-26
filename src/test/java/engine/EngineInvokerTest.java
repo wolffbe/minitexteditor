@@ -37,7 +37,7 @@ class EngineInvokerTest {
     }
 
     @Test
-    @DisplayName("Test execute invoker command")
+    @DisplayName("Execute invoker command")
     void testExecute() {
         engineInvoker.execute(null);
 

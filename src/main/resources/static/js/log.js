@@ -6,6 +6,7 @@ function appendToLog(message, obj) {
     } else if (arguments.length === 2) {
         logMessage = message + ":\n" + JSON.stringify(obj) + "\n\n";
     }
+    
     log.value += logMessage;
     log.scrollTop = log.scrollHeight;
 }

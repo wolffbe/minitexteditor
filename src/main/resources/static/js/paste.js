@@ -16,6 +16,8 @@ async function paste() {
       appendToLog("Paste successful", data)
     })
     .catch(error => {
-        console.error('Error pasting:', error);
+        let message = "Error pasting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

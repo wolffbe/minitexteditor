@@ -53,7 +53,7 @@ class OriginatorImplTest {
     }
 
     @Test
-    @DisplayName("Save engine state as memento")
+    @DisplayName("Save the engine state as memento")
     void testSaveState() {
         originator.setState(engine);
 
@@ -70,7 +70,7 @@ class OriginatorImplTest {
     }
 
     @Test
-    @DisplayName("Restore engine state from memento")
+    @DisplayName("Restore the engine state from memento")
     void testRestoreState() {
         String newBuffer = "This is the updated buffer content.";
         String newClipboard = "updated given";

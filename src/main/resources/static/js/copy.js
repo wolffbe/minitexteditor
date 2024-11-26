@@ -16,6 +16,8 @@ async function copy() {
       appendToLog("Copy successful", data)
     })
     .catch(error => {
-        console.error('Error copying:', error);
+        let message = "Error copying";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

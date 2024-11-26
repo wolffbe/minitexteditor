@@ -16,6 +16,8 @@ async function cut() {
       appendToLog("Cut successful", data)
     })
     .catch(error => {
-        console.error('Error cutting:', error);
+        let message = "Error cutting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

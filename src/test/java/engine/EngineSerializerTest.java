@@ -15,7 +15,7 @@ import fr.istic.aco.editor.engine.EngineImpl;
 class EngineSerializerTest {
 
     @Test
-    @DisplayName("Convert engine to response entity body")
+    @DisplayName("Convert the engine's state to a response entity body")
     void testConvertEngineToResponseEntityBody() {
         int mementoIndex = 0;
         StringBuilder buffer = new StringBuilder("This is the given buffer content.");

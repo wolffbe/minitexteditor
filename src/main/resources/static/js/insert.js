@@ -17,9 +17,11 @@ async function insert(key) {
       return response.json();
     })
     .then(data => {
-      appendToLog("Insertion successful", data)
+      appendToLog('Insertion successful', data)
     })
     .catch(error => {
-        console.error('Error inserting:', error);
+        let message = "Error inserting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

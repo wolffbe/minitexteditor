@@ -11,7 +11,9 @@ async function getEngineState() {
       const data = await response.json();
       setEngineState(data);
   } catch (error) {
-      console.error('Error fetching engine state:', error);
+      let message = "Error fetching engine state";
+      appendToLog(message);
+      console.error(message, error);
   }
 }
 
@@ -37,7 +39,8 @@ function setEngineState(data) {
             editor.selectionStart = data.beginIndex;
             editor.selectionEnd = data.endIndex;
     } else {
-        console.warn('Error parsing engine state');
-        editor.value = 'Error';
+        let message = "Error fetching engine state";
+        appendToLog(message);
+        console.error(message, error);
     }
 }

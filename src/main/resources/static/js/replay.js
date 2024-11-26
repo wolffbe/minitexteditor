@@ -29,11 +29,15 @@ async function replay() {
         }
 
     } catch (error) {
-        console.error('Error during replay:', error);
+        let message = "Error during replay";
+        appendToLog(message);
+        console.error(message, error);
     } finally {
         recordedMementoIndex = 0;
+
         editor.disabled = false;
         recordButton.disabled = false;
+
         appendToLog("Replay stopped.");
     }
 }

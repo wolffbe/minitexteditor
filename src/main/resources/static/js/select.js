@@ -41,6 +41,8 @@ async function select() {
       appendToLog("Selection updated", data)
     })
     .catch(error => {
-        console.error('Error selecting:', error);
+        let message = "Error inserting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

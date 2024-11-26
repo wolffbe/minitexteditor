@@ -25,7 +25,7 @@ class PasteTest {
     }
 
     @Test
-    @DisplayName("Paste a selected text")
+    @DisplayName("Execute paste command")
     void testPasteSelectedText() {
         Map<String, Object> params = new HashMap<>();
 

@@ -60,7 +60,7 @@ class MementoImplTest {
     }
 
     @Test
-    @DisplayName("Create independent copy of the engine state")
+    @DisplayName("Create an independent copy of the engine state")
     void testMementoCreatesIndependentCopy() {
         MementoImpl memento = new MementoImpl(engine);
         EngineImpl state = memento.state();

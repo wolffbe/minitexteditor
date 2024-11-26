@@ -16,6 +16,8 @@ async function deleteText() {
       appendToLog("Deletion successful", data)
     })
     .catch(error => {
-        console.error('Error deleting:', error);
+        let message = "Error deleting";
+        appendToLog(message);
+        console.error(message, error);
     });
 }

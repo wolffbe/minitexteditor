@@ -36,7 +36,6 @@ editor.addEventListener('keydown', async (event) => {
             getEngineState();
         });
     }
-
 });
 
 editor.addEventListener('contextmenu', function(event) {

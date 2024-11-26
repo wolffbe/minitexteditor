@@ -25,7 +25,7 @@ class InsertionTest {
     }
 
     @Test
-    @DisplayName("Insert text")
+    @DisplayName("Execute insert command")
     void testInsertingText() {
         String text = "text";
         Map<String, Object> params = new HashMap<>();
@@ -37,7 +37,7 @@ class InsertionTest {
     }
 
     @Test
-    @DisplayName("Insert text with a missing text parameter")
+    @DisplayName("Execute insert command with a missing text parameter")
     void testInsertMissingTextParameter() {
         Map<String, Object> params = new HashMap<>();
 
