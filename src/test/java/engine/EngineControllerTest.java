@@ -1,15 +1,14 @@
 package engine;
 
-import fr.istic.aco.editor.command.*;
 import fr.istic.aco.editor.engine.EngineController;
+import fr.istic.aco.editor.engine.EngineDto;
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.engine.EngineInvoker;
-import fr.istic.aco.editor.engine.EngineSerializer;
 import fr.istic.aco.editor.memento.CaretakerImpl;
 import fr.istic.aco.editor.memento.MementoImpl;
 import fr.istic.aco.editor.memento.OriginatorImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
-import fr.istic.aco.editor.selection.dto.SelectionDto;
+import fr.istic.aco.editor.selection.SelectionDto;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -18,8 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -54,12 +52,21 @@ class EngineControllerTest {
         autoCloseable = MockitoAnnotations.openMocks(this);
 
         String buffer = "This is the given buffer content.";
+        String clipboard = "given";
 
-        when(memento.state()).thenReturn(engine);
-        when(caretaker.getMemento(0)).thenReturn(memento);
+        when(selection.getBeginIndex()).thenReturn(0);
+        when(selection.getEndIndex()).thenReturn(1);
 
         when(engine.getBufferContents()).thenReturn(buffer);
+        when(engine.getClipboardContents()).thenReturn(clipboard);
         when(engine.getSelection()).thenReturn(selection);
+
+        when(memento.state()).thenReturn(engine);
+
+        when(caretaker.getMemento(0)).thenReturn(memento);
+
+        when(originator.saveState()).thenReturn(memento);
+        when(originator.saveState().state()).thenReturn(engine);
     }
 
     @AfterEach
@@ -70,7 +77,7 @@ class EngineControllerTest {
     @Test
     @DisplayName("Get the engine state")
     void testGetBufferContents() {
-        ResponseEntity<String> response = engineController.getEngineState();
+        ResponseEntity<EngineDto> response = engineController.getEngineState();
 
         assertEquals(200, response.getStatusCode().value());
         verify(caretaker, times(2)).getLastMementoIndex();
@@ -84,7 +91,7 @@ class EngineControllerTest {
         void testValidUpdateSelection() {
             SelectionDto selectionDto = new SelectionDto(10, 15);
 
-            ResponseEntity<String> response = engineController.updateSelection(selectionDto);
+            ResponseEntity<Optional<EngineDto>> response = engineController.updateSelection(selectionDto);
 
             assertEquals(200, response.getStatusCode().value());
             verify(engineInvoker, times(1)).setCommand(any());
@@ -103,7 +110,7 @@ class EngineControllerTest {
             doThrow(new IllegalArgumentException())
                     .when(engineInvoker).execute(any());
 
-            ResponseEntity<String> response = engineController.updateSelection(selectionDto);
+            ResponseEntity<Optional<EngineDto>> response = engineController.updateSelection(selectionDto);
 
             assertEquals(400, response.getStatusCode().value());
             verify(engineInvoker, times(1)).setCommand(any());
@@ -115,7 +122,7 @@ class EngineControllerTest {
     @Test
     @DisplayName("Cut a part of the buffer into the clipboard")
     void testCutIntoClipboard() {
-        ResponseEntity<String> response = engineController.cutSelectedText();
+        ResponseEntity<Optional<EngineDto>> response = engineController.cutSelectedText();
 
         assertEquals(200, response.getStatusCode().value());
         verify(engineInvoker, times(1)).setCommand(any());
@@ -128,7 +135,7 @@ class EngineControllerTest {
     @Test
     @DisplayName("Copy a part of the buffer into the clipboard")
     void testCopyIntoClipboard() {
-        ResponseEntity<String> response = engineController.copySelectedText();
+        ResponseEntity<Optional<EngineDto>> response = engineController.copySelectedText();
 
         assertEquals(200, response.getStatusCode().value());
         verify(engineInvoker, times(1)).setCommand(any());
@@ -141,7 +148,7 @@ class EngineControllerTest {
     @Test
     @DisplayName("Paste the content of the clipboard into the buffer")
     void testPasteIntoBuffer() {
-        ResponseEntity<String> response = engineController.pasteClipboard();
+        ResponseEntity<Optional<EngineDto>> response = engineController.pasteClipboard();
 
         assertEquals(200, response.getStatusCode().value());
         verify(engineInvoker, times(1)).setCommand(any());
@@ -156,7 +163,7 @@ class EngineControllerTest {
     void testInsertTextIntoBuffer() {
         String text = "..";
 
-        ResponseEntity<String> response = engineController.insertText(text);
+        ResponseEntity<EngineDto> response = engineController.insertText(text);
 
         assertEquals(200, response.getStatusCode().value());
         verify(engineInvoker, times(1)).setCommand(any());
@@ -169,7 +176,7 @@ class EngineControllerTest {
     @Test
     @DisplayName("Delete text from the buffer")
     void testDeleteSelectedTextFromBuffer() {
-        ResponseEntity<String> response = engineController.deleteSelectedText();
+        ResponseEntity<Optional<EngineDto>> response = engineController.deleteSelectedText();
 
         assertEquals(200, response.getStatusCode().value());
         verify(engineInvoker, times(1)).setCommand(any());
@@ -184,7 +191,7 @@ class EngineControllerTest {
     void testReplayMemento() {
         int mementoIndex = 0;
 
-        ResponseEntity<String> response = engineController.replay(mementoIndex);
+        ResponseEntity<Optional<EngineDto>> response = engineController.replay(mementoIndex);
 
         assertEquals(200, response.getStatusCode().value());
         verify(originator, times(1)).restoreState(any());

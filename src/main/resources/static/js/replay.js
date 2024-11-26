@@ -1,6 +1,5 @@
 async function replay() {
     appendToLog("Recording stopped.");
-    appendToLog("Replay started:");
 
     editor.disabled = true;
     recordButton.disabled = true;
@@ -10,6 +9,8 @@ async function replay() {
 
     let record = recordedMementoIndex;
 
+    appendToLog("Replay started:");
+
     try {
         for (; record <= engine.lastMementoIndex; record++) {
             const response = await fetch(`${url}?mementoIndex=${record}`, {
@@ -17,17 +18,18 @@ async function replay() {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Error: ${response.status} - ${response}`);
             }
 
             const data = await response.json();
 
-            setEngineState(data)
-            appendToLog("Successfully restored memento", data);
+            if(data !== null) {
+                setEngineState(data)
+                appendToLog("Successfully restored memento", data);
 
-            await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
         }
-
     } catch (error) {
         let message = "Error during replay";
         appendToLog(message);

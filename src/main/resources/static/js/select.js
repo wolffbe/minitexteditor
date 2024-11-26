@@ -33,12 +33,14 @@ async function select() {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Error: ${response.status} - ${response}`);
       }
       return response.json();
     })
     .then(data => {
-      appendToLog("Selection updated", data)
+      if(data != null) {
+        appendToLog("Selection updated", data)
+      }
     })
     .catch(error => {
         let message = "Error inserting";

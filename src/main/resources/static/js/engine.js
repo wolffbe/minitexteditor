@@ -5,9 +5,9 @@ async function getEngineState() {
   try {
       const response = await fetch(url);
       if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        const errorMessage = await response.json();
+        throw new Error(`Error: ${response.status} - ${errorMessage}`);
       }
-
       const data = await response.json();
       setEngineState(data);
   } catch (error) {
@@ -41,6 +41,6 @@ function setEngineState(data) {
     } else {
         let message = "Error fetching engine state";
         appendToLog(message);
-        console.error(message, error);
+        console.error(message);
     }
 }

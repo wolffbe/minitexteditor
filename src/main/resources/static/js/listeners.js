@@ -7,6 +7,7 @@ editor.addEventListener('keydown', async (event) => {
        event.key === "ArrowRight") {
         await checkSelection();
     }
+
     if(event.ctrlKey && event.key === "c") {
         await copy().then(() => {
             getEngineState();
@@ -18,19 +19,32 @@ editor.addEventListener('keydown', async (event) => {
         });
     }
     if(event.ctrlKey && event.key === "v") {
-        await paste().then(() => {
+        if(engine.clipboard === "") {
+            event.preventDefault();
+        } else {
+            await paste().then(() => {
+                getEngineState();
+            });
+        }
+    }
+
+    if(event.ctrlKey && event.key === "y") {
+        await redo().then(() => {
             getEngineState();
         });
     }
+
     if(event.key === "Backspace") {
         await deleteText().then(() => {
             getEngineState();
         });
     }
+
     if(event.key === "Delete" || event.key === "Enter" || event.key === 'Alt' || event.key === 'AltGraph') {
         alert("The " + event.key + " key is currently not supported!");
         getEngineState();
     }
+
     if(!event.ctrlKey && event.key.length === 1) {
         await insert(event.key).then(() => {
             getEngineState();
