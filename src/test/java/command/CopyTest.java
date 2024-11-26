@@ -25,7 +25,7 @@ class CopyTest {
     }
 
     @Test
-    @DisplayName("Test copying text")
+    @DisplayName("Copy text")
     void testCopyText() {
         Map<String, Object> params = new HashMap<>();
 

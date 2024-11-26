@@ -25,7 +25,7 @@ class DeletionTest {
     }
 
     @Test
-    @DisplayName("Test deleting text")
+    @DisplayName("Delete text")
     void testDeleteText() {
         Map<String, Object> params = new HashMap<>();
 
