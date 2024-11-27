@@ -39,7 +39,7 @@ public class EngineController {
         return ResponseEntity.ok(new EngineDto(mementoIndex, caretaker));
     }
 
-    @PostMapping(value = "/select", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/select")
     public ResponseEntity<Optional<EngineDto>> updateSelection(@RequestBody SelectionDto selection) {
         SelectionImpl lastSelection = (SelectionImpl) originator.saveState().state().getSelection();
 
@@ -69,7 +69,7 @@ public class EngineController {
         }
     }
 
-    @PostMapping(value = "/cut", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cut")
     public ResponseEntity<Optional<EngineDto>> cutSelectedText() {
         SelectionImpl selection = (SelectionImpl) originator.saveState().state().getSelection();
 
@@ -90,7 +90,7 @@ public class EngineController {
         }
     }
 
-    @PostMapping(value = "/copy", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/copy")
     public ResponseEntity<Optional<EngineDto>> copySelectedText() {
         SelectionImpl selection = (SelectionImpl) originator.saveState().state().getSelection();
 
@@ -111,7 +111,7 @@ public class EngineController {
         }
     }
 
-    @PostMapping(value = "/paste", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/paste")
     public ResponseEntity<Optional<EngineDto>> pasteClipboard() {
         if(originator.saveState().state().getClipboardContents().isEmpty()) {
             return ResponseEntity.ok(Optional.empty());
@@ -130,7 +130,7 @@ public class EngineController {
         }
     }
 
-    @PostMapping(value = "/insert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/insert")
     public ResponseEntity<EngineDto> insertText(@RequestBody String text) {
         int nextMementoIndex = caretaker.getNextMementoIndex();
 
@@ -148,7 +148,7 @@ public class EngineController {
         return ResponseEntity.ok(new EngineDto(nextMementoIndex, caretaker));
     }
 
-    @DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/delete")
     public ResponseEntity<Optional<EngineDto>> deleteSelectedText() {
         if(originator.saveState().state().getBufferContents().isEmpty()) {
             return ResponseEntity.ok(Optional.empty());
@@ -167,19 +167,7 @@ public class EngineController {
         }
     }
 
-    @GetMapping(value = "/replay", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Optional<EngineDto>> replay(@RequestParam Integer mementoIndex) {
-        int lastMementoIndex = caretaker.getLastMementoIndex();
-
-        if(mementoIndex <= lastMementoIndex) {
-            originator.restoreState(caretaker.getMemento(mementoIndex));
-            return ResponseEntity.ok(Optional.of(new EngineDto(mementoIndex, caretaker)));
-        } else {
-            return ResponseEntity.ok(Optional.empty());
-        }
-    }
-
-    @PostMapping(value = "/redo", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = {"/redo"})
     public ResponseEntity<Optional<EngineDto>> redo(@RequestBody Integer mementoIndex) {
         int lastMementoIndex = caretaker.getLastMementoIndex();
 

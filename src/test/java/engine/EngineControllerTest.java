@@ -187,11 +187,11 @@ class EngineControllerTest {
     }
 
     @Test
-    @DisplayName("Replay a memento")
+    @DisplayName("Redo a memento")
     void testReplayMemento() {
         int mementoIndex = 0;
 
-        ResponseEntity<Optional<EngineDto>> response = engineController.replay(mementoIndex);
+        ResponseEntity<Optional<EngineDto>> response = engineController.redo(mementoIndex);
 
         assertEquals(200, response.getStatusCode().value());
         verify(originator, times(1)).restoreState(any());

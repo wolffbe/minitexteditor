@@ -41,8 +41,8 @@ editor.addEventListener('keydown', async (event) => {
     }
 
     if(event.key === "Delete" || event.key === "Enter" || event.key === 'Alt' || event.key === 'AltGraph') {
+        event.preventDefault();
         alert("The " + event.key + " key is currently not supported!");
-        getEngineState();
     }
 
     if(!event.ctrlKey && event.key.length === 1) {
