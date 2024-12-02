@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', getEngineState);
+document.addEventListener('DOMContentLoaded', updateEngineState);
 
-editor.addEventListener('keydown', async (event) => {
+editor.addEventListener('keyup', async (event) => {
     if(event.key === "ArrowUp" ||
        event.key === "ArrowDown" ||
        event.key === "ArrowLeft" ||
@@ -10,12 +10,12 @@ editor.addEventListener('keydown', async (event) => {
 
     if(event.ctrlKey && event.key === "c") {
         await copy().then(() => {
-            getEngineState();
+            updateEngineState();
         });
     }
     if(event.ctrlKey && event.key === "x") {
         await cut().then(() => {
-            getEngineState();
+            updateEngineState();
         });
     }
     if(event.ctrlKey && event.key === "v") {
@@ -23,20 +23,28 @@ editor.addEventListener('keydown', async (event) => {
             event.preventDefault();
         } else {
             await paste().then(() => {
-                getEngineState();
+                updateEngineState();
             });
         }
     }
 
     if(event.ctrlKey && event.key === "y") {
+        event.preventDefault();
         await redo().then(() => {
-            getEngineState();
+            updateEngineState();
+        });
+    }
+
+    if(event.ctrlKey && event.key === "z") {
+        event.preventDefault();
+        await undo().then(() => {
+            updateEngineState();
         });
     }
 
     if(event.key === "Backspace") {
         await deleteText().then(() => {
-            getEngineState();
+            updateEngineState();
         });
     }
 
@@ -47,7 +55,7 @@ editor.addEventListener('keydown', async (event) => {
 
     if(!event.ctrlKey && event.key.length === 1) {
         await insert(event.key).then(() => {
-            getEngineState();
+            updateEngineState();
         });
     }
 });
@@ -57,7 +65,7 @@ editor.addEventListener('contextmenu', function(event) {
     alert("The context menu is currently not supported!");
 });
 
-editor.addEventListener("click", async (event) => {
+editor.addEventListener('click', async (event) => {
     await checkSelection();
 });
 

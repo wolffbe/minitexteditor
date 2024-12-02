@@ -1,5 +1,7 @@
 package fr.istic.aco.editor.selection;
 
+import java.util.Objects;
+
 public class SelectionImpl implements Selection {
     private final StringBuilder buffer;
     private final int BUFFER_BEGIN_INDEX;
@@ -15,9 +17,16 @@ public class SelectionImpl implements Selection {
      * @param buffer the StringBuilder instance used as the source text for selection operations
      */
     public SelectionImpl(StringBuilder buffer) {
-        this.buffer = buffer;
+        this.buffer = Objects.requireNonNull(buffer, "A selection requires a buffer.");
         this.beginIndex = 0;
         this.endIndex = 0;
+        this.BUFFER_BEGIN_INDEX = 0;
+    }
+
+    public SelectionImpl(StringBuilder buffer, int beginIndex, int endIndex) {
+        this.buffer = Objects.requireNonNull(buffer, "A selection requires a buffer.");
+        this.beginIndex = beginIndex;
+        this.endIndex = endIndex;
         this.BUFFER_BEGIN_INDEX = 0;
     }
 

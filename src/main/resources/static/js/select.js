@@ -1,25 +1,19 @@
-let selectionStart = editor.selectionStart;
-let selectionEnd = editor.selectionEnd;
+let isSelecting = false;
 
 async function checkSelection() {
-    const currentSelectionStart = editor.selectionStart;
-    const currentSelectionEnd = editor.selectionEnd;
+    if (isSelecting) return;
 
-    if (currentSelectionStart !== selectionStart || currentSelectionEnd !== selectionEnd) {
-        if(currentSelectionStart !== selectionStart) {
-            selectionStart = currentSelectionStart;
-        }
-        if(currentSelectionEnd !== selectionEnd) {
-            selectionEnd = currentSelectionEnd;
-        }
+    if (editor.selectionStart !== engine.beginIndex || editor.selectionEnd !== engine.endIndex) {
+        isSelecting = true;
         await select();
+        isSelecting = false;
     }
 }
 
 async function select() {
     const index = {
-        beginIndex: selectionStart,
-        endIndex: selectionEnd,
+        beginIndex: editor.selectionStart,
+        endIndex: editor.selectionEnd,
     }
 
     const url = "http://localhost:8080/api/engine/select";
@@ -43,7 +37,7 @@ async function select() {
       }
     })
     .catch(error => {
-        let message = "Error inserting";
+        let message = "Error updating selection";
         appendToLog(message);
         console.error(message, error);
     });

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EngineImplTest {
 
@@ -18,6 +17,30 @@ class EngineImplTest {
     @BeforeEach
     void setUp() {
         engine = new EngineImpl();
+    }
+
+    @Test
+    @DisplayName("Initialize engine")
+    void initializeEngine() {
+        assertEquals("", engine.getBufferContents());
+        assertEquals("", engine.getClipboardContents());
+
+        assertNotNull(engine.getSelection());
+        assertEquals(0, engine.getSelection().getBeginIndex());
+        assertEquals(0, engine.getSelection().getEndIndex());
+    }
+
+    @Test
+    @DisplayName("Initialize engine without existing engine")
+    void initializeEngineWithoutExistingEngine() {
+        String expectedErrorMessage = "An engine requires an existing engine.";
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            new EngineImpl(null);
+        });
+        String errorMessage = exception.getMessage();
+
+        assertEquals(expectedErrorMessage, errorMessage);
     }
 
     @Test
@@ -271,6 +294,4 @@ class EngineImplTest {
             assertEquals(endIndex, engine.getSelection().getEndIndex());
         }
     }
-
-
 }

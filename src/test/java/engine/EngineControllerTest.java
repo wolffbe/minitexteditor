@@ -2,16 +2,9 @@ package engine;
 
 import fr.istic.aco.editor.engine.EngineController;
 import fr.istic.aco.editor.engine.EngineDto;
-import fr.istic.aco.editor.engine.EngineImpl;
-import fr.istic.aco.editor.engine.EngineInvoker;
-import fr.istic.aco.editor.memento.CaretakerImpl;
-import fr.istic.aco.editor.memento.MementoImpl;
-import fr.istic.aco.editor.memento.OriginatorImpl;
-import fr.istic.aco.editor.selection.SelectionImpl;
+import fr.istic.aco.editor.engine.EngineService;
 import fr.istic.aco.editor.selection.SelectionDto;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -19,28 +12,19 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class EngineControllerTest {
 
     @Mock
-    private EngineInvoker engineInvoker;
+    SelectionDto selectionDto;
 
     @Mock
-    private EngineImpl engine;
+    EngineDto mockEngineDto;
 
     @Mock
-    private SelectionImpl selection;
-
-    @Mock
-    private OriginatorImpl originator;
-
-    @Mock
-    private CaretakerImpl<EngineImpl> caretaker;
-
-    @Mock
-    private MementoImpl memento;
+    private EngineService engineService;
 
     @InjectMocks
     private EngineController engineController;
@@ -50,23 +34,6 @@ class EngineControllerTest {
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-
-        String buffer = "This is the given buffer content.";
-        String clipboard = "given";
-
-        when(selection.getBeginIndex()).thenReturn(0);
-        when(selection.getEndIndex()).thenReturn(1);
-
-        when(engine.getBufferContents()).thenReturn(buffer);
-        when(engine.getClipboardContents()).thenReturn(clipboard);
-        when(engine.getSelection()).thenReturn(selection);
-
-        when(memento.state()).thenReturn(engine);
-
-        when(caretaker.getMemento(0)).thenReturn(memento);
-
-        when(originator.saveState()).thenReturn(memento);
-        when(originator.saveState().state()).thenReturn(engine);
     }
 
     @AfterEach
@@ -74,127 +41,158 @@ class EngineControllerTest {
         autoCloseable.close();
     }
 
+    @Nested
+    @DisplayName("Initialize controller")
+    class InitializeController {
+        @Test
+        @DisplayName("Initialize controller with service")
+        void testInitializeControllerWithService() {
+            EngineController controller = new EngineController(engineService);
+            assertNotNull(controller);
+        }
+
+        @Test
+        @DisplayName("Initialize controller without service")
+        void testInitializeControllerWithoutService() {
+            String expectedErrorMessage = "An engine controller cannot be initialized without an engine service.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineController(null);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+    }
+
     @Test
-    @DisplayName("Get the engine state")
-    void testGetBufferContents() {
+    @DisplayName("Get engine state")
+    void testGetEngineState() {
+        when(engineService.getEngineState()).thenReturn(mockEngineDto);
+
         ResponseEntity<EngineDto> response = engineController.getEngineState();
 
+        assertEquals(mockEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(caretaker, times(2)).getLastMementoIndex();
-    }
-
-    @Nested
-    @DisplayName("Update a selection")
-    class PasteIntoClipboard {
-        @Test
-        @DisplayName("Update a selection in a valid range")
-        void testValidUpdateSelection() {
-            SelectionDto selectionDto = new SelectionDto(10, 15);
-
-            ResponseEntity<Optional<EngineDto>> response = engineController.updateSelection(selectionDto);
-
-            assertEquals(200, response.getStatusCode().value());
-            verify(engineInvoker, times(1)).setCommand(any());
-            verify(engineInvoker, times(1)).execute(any());
-            verify(originator, times(2)).setState(any());
-            verify(caretaker, times(1)).getNextMementoIndex();
-            verify(caretaker, times(2)).addMemento(any());
-        }
-
-        @ParameterizedTest
-        @CsvSource({"-1,2", "-3,-1", "3,1"})
-        @DisplayName("Update a selection in an invalid range")
-        void testInvalidUpdateSelection(int beginIndex, int endIndex) {
-            SelectionDto selectionDto = new SelectionDto(beginIndex, endIndex);
-
-            doThrow(new IllegalArgumentException())
-                    .when(engineInvoker).execute(any());
-
-            ResponseEntity<Optional<EngineDto>> response = engineController.updateSelection(selectionDto);
-
-            assertEquals(400, response.getStatusCode().value());
-            verify(engineInvoker, times(1)).setCommand(any());
-            verify(engineInvoker, times(1)).execute(any());
-            verify(caretaker, times(1)).getNextMementoIndex();
-        }
+        verify(engineService, times(1)).getEngineState();
     }
 
     @Test
-    @DisplayName("Cut a part of the buffer into the clipboard")
-    void testCutIntoClipboard() {
-        ResponseEntity<Optional<EngineDto>> response = engineController.cutSelectedText();
+    @DisplayName("Update selection")
+    void testUpdateSelection() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.updateSelection(selectionDto)).thenReturn(mockOptionalEngineDto);
 
+        ResponseEntity<Optional<EngineDto>> response = engineController.updateSelection(selectionDto);
+
+        assertEquals(mockOptionalEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(engineInvoker, times(1)).setCommand(any());
-        verify(engineInvoker, times(1)).execute(any());
-        verify(originator, times(2)).setState(any());
-        verify(caretaker, times(1)).getNextMementoIndex();
-        verify(caretaker, times(2)).addMemento(any());
+        verify(engineService, times(1)).updateSelection(selectionDto);
     }
 
     @Test
-    @DisplayName("Copy a part of the buffer into the clipboard")
-    void testCopyIntoClipboard() {
-        ResponseEntity<Optional<EngineDto>> response = engineController.copySelectedText();
+    @DisplayName("Cut selection")
+    void testCutSelection() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.cutSelection()).thenReturn(mockOptionalEngineDto);
 
+        ResponseEntity<Optional<EngineDto>> response = engineController.cutSelection();
+
+        assertEquals(mockOptionalEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(engineInvoker, times(1)).setCommand(any());
-        verify(engineInvoker, times(1)).execute(any());
-        verify(originator, times(2)).setState(any());
-        verify(caretaker, times(1)).getNextMementoIndex();
-        verify(caretaker, times(2)).addMemento(any());
+        verify(engineService, times(1)).cutSelection();
     }
 
     @Test
-    @DisplayName("Paste the content of the clipboard into the buffer")
-    void testPasteIntoBuffer() {
+    @DisplayName("Copy selection")
+    void testCopySelection() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.copySelection()).thenReturn(mockOptionalEngineDto);
+
+        ResponseEntity<Optional<EngineDto>> response = engineController.copySelection();
+
+        assertEquals(mockOptionalEngineDto, response.getBody());
+        assertEquals(200, response.getStatusCode().value());
+        verify(engineService, times(1)).copySelection();
+    }
+
+    @Test
+    @DisplayName("Paste clipboard")
+    void testPasteClipboard() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.pasteClipboard()).thenReturn(mockOptionalEngineDto);
+
         ResponseEntity<Optional<EngineDto>> response = engineController.pasteClipboard();
 
+        assertEquals(mockOptionalEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(engineInvoker, times(1)).setCommand(any());
-        verify(engineInvoker, times(1)).execute(null);
-        verify(originator, times(2)).setState(any());
-        verify(caretaker, times(1)).getNextMementoIndex();
-        verify(caretaker, times(2)).addMemento(any());
+        verify(engineService, times(1)).pasteClipboard();
     }
 
     @Test
-    @DisplayName("Insert text into the buffer")
-    void testInsertTextIntoBuffer() {
-        String text = "..";
+    @DisplayName("Insert text")
+    void testInsertText() {
+        String text = "This is the given buffer content.";
+
+        when(engineService.insertText(anyString())).thenReturn(mockEngineDto);
 
         ResponseEntity<EngineDto> response = engineController.insertText(text);
 
+        assertEquals(mockEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(engineInvoker, times(1)).setCommand(any());
-        verify(engineInvoker, times(1)).execute(any());
-        verify(originator, times(2)).setState(any());
-        verify(caretaker, times(1)).getNextMementoIndex();
-        verify(caretaker, times(2)).addMemento(any());
+        verify(engineService, times(1)).insertText(text);
     }
 
     @Test
-    @DisplayName("Delete text from the buffer")
-    void testDeleteSelectedTextFromBuffer() {
+    @DisplayName("Delete selected text")
+    void testDeleteSelectedText() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.deleteText()).thenReturn(mockOptionalEngineDto);
+
         ResponseEntity<Optional<EngineDto>> response = engineController.deleteSelectedText();
 
+        assertEquals(mockOptionalEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(engineInvoker, times(1)).setCommand(any());
-        verify(engineInvoker, times(1)).execute(null);
-        verify(originator, times(2)).setState(any());
-        verify(caretaker, times(1)).getNextMementoIndex();
-        verify(caretaker, times(2)).addMemento(any());
+        verify(engineService, times(1)).deleteText();
     }
 
     @Test
-    @DisplayName("Redo a memento")
-    void testReplayMemento() {
-        int mementoIndex = 0;
+    @DisplayName("Replay previous actions")
+    void testReplay() {
+        int fromMementoIndex = 1;
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.replay(fromMementoIndex)).thenReturn(mockOptionalEngineDto);
 
-        ResponseEntity<Optional<EngineDto>> response = engineController.redo(mementoIndex);
+        ResponseEntity<Optional<EngineDto>> response = engineController.replay(fromMementoIndex);
 
+        assertEquals(mockOptionalEngineDto, response.getBody());
         assertEquals(200, response.getStatusCode().value());
-        verify(originator, times(1)).restoreState(any());
-        verify(caretaker, times(2)).getMemento(mementoIndex);
+        verify(engineService, times(1)).replay(fromMementoIndex);
+    }
+
+    @Test
+    @DisplayName("Undo previous action")
+    void testUndo() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.undo()).thenReturn(mockOptionalEngineDto);
+
+        ResponseEntity<Optional<EngineDto>> response = engineController.undo();
+
+        assertEquals(mockOptionalEngineDto, response.getBody());
+        assertEquals(200, response.getStatusCode().value());
+        verify(engineService, times(1)).undo();
+    }
+
+    @Test
+    @DisplayName("Redo previous action")
+    void testRedo() {
+        Optional<EngineDto> mockOptionalEngineDto = Optional.of(mockEngineDto);
+        when(engineService.redo()).thenReturn(mockOptionalEngineDto);
+
+        ResponseEntity<Optional<EngineDto>> response = engineController.redo();
+
+        assertEquals(mockOptionalEngineDto, response.getBody());
+        assertEquals(200, response.getStatusCode().value());
+        verify(engineService, times(1)).redo();
     }
 }

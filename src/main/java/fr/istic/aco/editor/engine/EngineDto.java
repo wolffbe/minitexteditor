@@ -1,7 +1,8 @@
 package fr.istic.aco.editor.engine;
 
-import fr.istic.aco.editor.memento.CaretakerImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
+
+import java.util.Objects;
 
 public class EngineDto {
 
@@ -13,8 +14,9 @@ public class EngineDto {
     private final int bufferEndIndex;
     private final int lastMementoIndex;
 
-    public EngineDto(int mementoIndex, CaretakerImpl<EngineImpl> caretaker) {
-        EngineImpl engine = caretaker.getMemento(mementoIndex).state();
+    public EngineDto(int mementoIndex, EngineImpl engine, int lastMementoIndex) {
+        Objects.requireNonNull(engine, "An engine data transfer object requires an engine.");
+
         SelectionImpl selection = (SelectionImpl) engine.getSelection();
 
         this.mementoIndex = mementoIndex;
@@ -23,7 +25,7 @@ public class EngineDto {
         this.beginIndex = selection.getBeginIndex();
         this.endIndex = selection.getEndIndex();
         this.bufferEndIndex = selection.getBufferEndIndex();
-        this.lastMementoIndex = caretaker.getLastMementoIndex();
+        this.lastMementoIndex = lastMementoIndex;
     }
 
     public int getMementoIndex() {

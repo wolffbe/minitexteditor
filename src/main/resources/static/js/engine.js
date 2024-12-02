@@ -1,20 +1,27 @@
+async function updateEngineState() {
+    const state = await getEngineState();
+    setEngineState(state);
+}
+
 async function getEngineState() {
+    const url = "http://localhost:8080/api/engine";
 
-  const url = "http://localhost:8080/api/engine";
+    try {
+        const response = await fetch(url);
 
-  try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        throw new Error(`Error: ${response.status} - ${errorMessage}`);
-      }
-      const data = await response.json();
-      setEngineState(data);
-  } catch (error) {
-      let message = "Error fetching engine state";
-      appendToLog(message);
-      console.error(message, error);
-  }
+        if (!response.ok) {
+            const errorMessage = await response.json();
+            throw new Error(`Error: ${response.status} - ${errorMessage}`);
+        }
+
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        const message = "Error fetching engine state";
+        appendToLog(message);
+        console.error(message, error);
+    }
 }
 
 function setEngineState(data) {

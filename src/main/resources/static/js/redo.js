@@ -24,7 +24,7 @@ async function fetchRedo(mementoIndex) {
 }
 
 async function redo() {
-    const data = await fetchRedo(engine.mementoIndex)
+    const data = await fetchRedo();
     if(data === null) {
         appendToLog("Nothing to redo!");
     } else {

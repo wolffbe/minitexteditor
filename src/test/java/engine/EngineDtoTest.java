@@ -2,31 +2,25 @@ package engine;
 
 import fr.istic.aco.editor.engine.EngineDto;
 import fr.istic.aco.editor.engine.EngineImpl;
-import fr.istic.aco.editor.memento.CaretakerImpl;
-import fr.istic.aco.editor.memento.Memento;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class EngineDtoTest {
 
     @Mock
-    CaretakerImpl<EngineImpl> caretaker;
+    private EngineImpl mockEngine;
 
     @Mock
-    EngineImpl engine;
-
-    @Mock
-    SelectionImpl selection;
-
-    @Mock
-    Memento<EngineImpl> memento;
+    private SelectionImpl mockSelection;
 
     private AutoCloseable autoCloseable;
 
@@ -41,39 +35,47 @@ class EngineDtoTest {
     }
 
     @Test
-    void testEngineDtoConstructor() {
-        int mementoIndex = 2;
+    @DisplayName("Initialize engine data transfer object with engine")
+    void testInitializeEngineDto() {
         String buffer = "This is the given buffer content.";
         String clipboard = "given";
+
         int beginIndex = 5;
         int endIndex = 10;
-        int lastMementoIndex = 3;
+        int bufferEndIndex = 50;
 
-        when(memento.state()).thenReturn(engine);
-        when(caretaker.getMemento(mementoIndex)).thenReturn(memento);
-        when(caretaker.getLastMementoIndex()).thenReturn(lastMementoIndex);
+        int mementoIndex = 1;
+        int lastMementoIndex = 10;
 
-        when(engine.getBufferContents()).thenReturn(buffer);
-        when(engine.getClipboardContents()).thenReturn(clipboard);
-        when(engine.getSelection()).thenReturn(selection);
+        when(mockEngine.getBufferContents()).thenReturn(buffer);
+        when(mockEngine.getClipboardContents()).thenReturn(clipboard);
+        when(mockEngine.getSelection()).thenReturn(mockSelection);
 
-        when(selection.getBeginIndex()).thenReturn(beginIndex);
-        when(selection.getEndIndex()).thenReturn(endIndex);
+        when(mockSelection.getBeginIndex()).thenReturn(beginIndex);
+        when(mockSelection.getEndIndex()).thenReturn(endIndex);
+        when(mockSelection.getBufferEndIndex()).thenReturn(bufferEndIndex);
 
-        EngineDto dto = new EngineDto(mementoIndex, caretaker);
+        EngineDto engineDto = new EngineDto(mementoIndex, mockEngine, lastMementoIndex);
 
-        verify(caretaker).getMemento(mementoIndex);
-        verify(engine).getBufferContents();
-        verify(engine).getClipboardContents();
-        verify(engine).getSelection();
-        verify(selection).getBeginIndex();
-        verify(selection).getEndIndex();
-        verify(caretaker).getLastMementoIndex();
+        assertEquals(mementoIndex, engineDto.getMementoIndex());
+        assertEquals(buffer, engineDto.getBuffer());
+        assertEquals(clipboard, engineDto.getClipboard());
+        assertEquals(beginIndex, engineDto.getBeginIndex());
+        assertEquals(endIndex, engineDto.getEndIndex());
+        assertEquals(bufferEndIndex, engineDto.getBufferEndIndex());
+        assertEquals(lastMementoIndex, engineDto.getLastMementoIndex());
+    }
 
-        assertEquals(buffer, engine.getBufferContents());
-        assertEquals(clipboard, engine.getClipboardContents());
-        assertEquals(beginIndex, selection.getBeginIndex());
-        assertEquals(endIndex, selection.getEndIndex());
-        assertEquals(lastMementoIndex, caretaker.getLastMementoIndex());
+    @Test
+    @DisplayName("Initialize engine data transfer object without engine")
+    void testInitializeEngineDtoWithoutEngine() {
+        String expectedErrorMessage = "An engine data transfer object requires an engine.";
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            new EngineDto(0, null, 0);
+        });
+        String errorMessage = exception.getMessage();
+
+        assertEquals(expectedErrorMessage, errorMessage);
     }
 }

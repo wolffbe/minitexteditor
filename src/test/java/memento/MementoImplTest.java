@@ -46,8 +46,8 @@ class MementoImplTest {
     }
 
     @Test
-    @DisplayName("Capture the engine state")
-    void testMementoCapturesState() {
+    @DisplayName("Capture memento of engine state")
+    void testCaptureMementoOfEngineState() {
         MementoImpl memento = new MementoImpl(engine);
 
         EngineImpl state = memento.state();
@@ -60,8 +60,21 @@ class MementoImplTest {
     }
 
     @Test
+    @DisplayName("Capture memento of engine state without engine")
+    void testCaptureMementoStateWithoutEngine() {
+        String expectedErrorMessage = "A memento requires an engine state.";
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            new MementoImpl(null);
+        });
+        String errorMessage = exception.getMessage();
+
+        assertEquals(expectedErrorMessage, errorMessage);
+    }
+
+    @Test
     @DisplayName("Create an independent copy of the engine state")
-    void testMementoCreatesIndependentCopy() {
+    void testCreateIndependentCopyOfEngineState() {
         MementoImpl memento = new MementoImpl(engine);
         EngineImpl state = memento.state();
 

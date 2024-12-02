@@ -2,36 +2,75 @@ package selection;
 
 import fr.istic.aco.editor.selection.Selection;
 import fr.istic.aco.editor.selection.SelectionImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SelectionImplTest {
 
-    String randomBuffer;
+    String buffer;
     private Selection selection;
 
     @BeforeEach
     void setUp() {
-        randomBuffer = "This is the buffer content.";
+        buffer = "This is the buffer content.";
 
-        StringBuilder buffer = new StringBuilder(randomBuffer);
+        StringBuilder buffer = new StringBuilder(this.buffer);
         selection = new SelectionImpl(buffer);
 
         assertInstanceOf(SelectionImpl.class, selection);
     }
 
-    @Test
-    @DisplayName("Get a begin index of a selected control object")
-    public void testGetBeginIndex() {
-        int beginIndex = 0;
+    @Nested
+    @DisplayName("Initialize a selection control object")
+    public class initializeSelection {
+        @Test
+        @DisplayName("Initialize a selection control object using a buffer")
+        public void testInitializeSelectionUsingBuffer() {
+            StringBuilder buffer = new StringBuilder("This is the buffer content.");
 
-        selection.setBeginIndex(beginIndex);
+            Selection selection = new SelectionImpl(buffer);
 
-        assertEquals(beginIndex, selection.getBeginIndex());
+            assertEquals(0, selection.getBeginIndex());
+            assertEquals(0, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("Initialize a selection control object without a buffer")
+        public void testInitializeSelectionWithoutBuffer() {
+            String expectedErrorMessage = "A selection requires a buffer.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new SelectionImpl(null);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+
+        @Test
+        @DisplayName("Initialize a selection control object using a begin index, buffer and end index")
+        public void testInitializeSelectionUsingBeginIndexBufferEndIndex() {
+            StringBuilder buffer = new StringBuilder("This is the buffer content.");
+
+            Selection selection = new SelectionImpl(buffer, 1, 1);
+
+            assertEquals(1, selection.getBeginIndex());
+            assertEquals(1, selection.getEndIndex());
+        }
+
+        @Test
+        @DisplayName("Initialize a selection control object without a buffer and with indexes")
+        public void testInitializeSelectionWithIndexWithoutBuffer() {
+            String expectedErrorMessage = "A selection requires a buffer.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new SelectionImpl(null, 0,0);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
     }
 
     @Test
@@ -55,7 +94,7 @@ class SelectionImplTest {
     @Test
     @DisplayName("Get a buffer end index of a selected control object")
     public void getBufferEndIndex() {
-        assertEquals(randomBuffer.length(), selection.getBufferEndIndex());
+        assertEquals(buffer.length(), selection.getBufferEndIndex());
     }
 
     @Nested
