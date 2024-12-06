@@ -1,3 +1,10 @@
+/**
+ * Replays recorded actions in the text editing engine.
+ * Temporarily disables the editor and control buttons while replaying actions from the recorded memento index.
+ *
+ * Author: Benedict Wolff
+ * @version 1.0
+ */
 async function replay() {
     appendToLog("Recording stopped.");
 
@@ -16,6 +23,13 @@ async function replay() {
     recordButton.disabled = false;
 }
 
+/**
+ * Fetches replay data for the recorded memento index from the text editing engine.
+ * Sends a GET request with the memento index as a query parameter.
+ *
+ * @param {number} recordedMementoIndex - The starting index for replaying actions.
+ * @returns {Promise<Object|undefined>} The replayed engine state, or undefined if an error occurs.
+ */
 async function fetchReplay(recordedMementoIndex) {
     const url = new URL("http://localhost:8080/api/engine/replay");
     url.searchParams.append('fromMementoIndex', recordedMementoIndex);
@@ -25,7 +39,7 @@ async function fetchReplay(recordedMementoIndex) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+            throw new Error(response);
         }
         return response.json();
     })

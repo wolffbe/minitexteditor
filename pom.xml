@@ -8,11 +8,11 @@
         <version>3.3.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>texteditor</artifactId>
-    <version>1.0.0</version>
-    <name>Text editor</name>
-    <description>The mini-text editor project</description>
+    <groupId>fr.istic.aco</groupId>
+    <artifactId>editor</artifactId>
+    <version>3.0.0</version>
+    <name>Mini text editor</name>
+    <description>The mini text editor project</description>
     <url/>
     <licenses>
         <license/>

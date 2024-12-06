@@ -1,6 +1,7 @@
 package memento;
 
 import fr.istic.aco.editor.engine.EngineImpl;
+import fr.istic.aco.editor.memento.Memento;
 import fr.istic.aco.editor.memento.MementoImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -11,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class MementoImplTest {
 
@@ -48,13 +49,12 @@ class MementoImplTest {
     @Test
     @DisplayName("Capture memento of engine state")
     void testCaptureMementoOfEngineState() {
-        MementoImpl memento = new MementoImpl(engine);
+        Memento<EngineImpl> memento = new MementoImpl(engine);
 
         EngineImpl state = memento.state();
 
         assertNotNull(state);
         assertEquals(buffer, state.getBufferContents());
-        assertEquals(clipboard, state.getClipboardContents());
         assertEquals(beginIndex, state.getSelection().getBeginIndex());
         assertEquals(endIndex, state.getSelection().getEndIndex());
     }

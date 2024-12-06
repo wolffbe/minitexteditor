@@ -10,6 +10,8 @@ import fr.istic.aco.editor.memento.OriginatorImpl;
 import fr.istic.aco.editor.selection.SelectionDto;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -59,69 +61,21 @@ public class EngineServiceTest {
         autoCloseable.close();
     }
 
-    @Nested
-    @DisplayName("Initialize engine service")
-    class initializeEngineService {
-        @Test
-        @DisplayName("Initialize engine service")
-        void testInitializeEngineService() {
-            EngineService service = new EngineService(engine, engineInvoker, originator, caretaker);
+    @ParameterizedTest
+    @CsvSource({"0, 2", "1, 3"})
+    @DisplayName("Update selection")
+    void testUpdateSelection(int beginIndex, int endIndex) {
+        when(engine.getSelection().getBeginIndex()).thenReturn(beginIndex);
+        when(engine.getSelection().getEndIndex()).thenReturn(endIndex);
 
-            assertNotNull(service);
-            verify(caretaker, times(2)).addMemento(any());
-        }
+        Optional<EngineDto> engineDto = engineService.updateSelection(new SelectionDto(1,2));
 
-        @Test
-        @DisplayName("Initialize engine service without engine")
-        void testInitializeEngineServiceWithoutEngine() {
-            String expectedErrorMessage = "An engine service requires an engine.";
+        assertTrue(engineDto.isPresent());
 
-            Exception exception = assertThrows(NullPointerException.class, () -> {
-                new EngineService(null, engineInvoker, originator, caretaker);
-            });
-            String errorMessage = exception.getMessage();
-
-            assertEquals(expectedErrorMessage, errorMessage);
-        }
-
-        @Test
-        @DisplayName("Initialize engine service without invoker")
-        void testInitializeEngineServiceWithoutInvoker() {
-            String expectedErrorMessage = "An engine service requires an engine invoker.";
-
-            Exception exception = assertThrows(NullPointerException.class, () -> {
-                new EngineService(engine, null, originator, caretaker);
-            });
-            String errorMessage = exception.getMessage();
-
-            assertEquals(expectedErrorMessage, errorMessage);
-        }
-
-        @Test
-        @DisplayName("Initialize engine service without originator")
-        void testInitializeEngineServiceWithoutOriginator() {
-            String expectedErrorMessage = "An engine service requires an originator.";
-
-            Exception exception = assertThrows(NullPointerException.class, () -> {
-                new EngineService(engine, engineInvoker, null, caretaker);
-            });
-            String errorMessage = exception.getMessage();
-
-            assertEquals(expectedErrorMessage, errorMessage);
-        }
-
-        @Test
-        @DisplayName("Initialize engine service without caretaker")
-        void testInitializeEngineControllerWithoutCaretaker() {
-            String expectedErrorMessage = "An engine service requires a caretaker.";
-
-            Exception exception = assertThrows(NullPointerException.class, () -> {
-                new EngineService(engine, engineInvoker, originator, null);
-            });
-            String errorMessage = exception.getMessage();
-
-            assertEquals(expectedErrorMessage, errorMessage);
-        }
+        verify(engineInvoker, times(1)).setCommand(any(Selection.class));
+        verify(engineInvoker, times(1)).execute(any());
+        verify(caretaker, times(2)).addMemento(any());
+        verify(originator, times(2)).saveState();
     }
 
     @Test
@@ -138,19 +92,19 @@ public class EngineServiceTest {
     }
 
     @Test
-    @DisplayName("Update selection")
-    void testUpdateSelection() {
-        when(engine.getSelection().getBeginIndex()).thenReturn(0);
-        when(engine.getSelection().getEndIndex()).thenReturn(3);
+    @DisplayName("Undo previous action")
+    void testUndo() {
+        when(caretaker.isFirstMemento()).thenReturn(false);
 
-        Optional<EngineDto> engineDto = engineService.updateSelection(new SelectionDto(1,2));
+        Optional<EngineDto> engineDto = engineService.undo();
 
         assertTrue(engineDto.isPresent());
 
-        verify(engineInvoker, times(1)).setCommand(any(Selection.class));
-        verify(engineInvoker, times(1)).execute(any());
-        verify(caretaker, times(2)).addMemento(any());
-        verify(originator, times(2)).saveState();
+        verify(caretaker, times(1)).isFirstMemento();
+        verify(caretaker, times(1)).decrementMementoIndex();
+        verify(caretaker, times(1)).getMemento(anyInt());
+        verify(caretaker, times(2)).getCurrentMementoIndex();
+        verify(originator, times(1)).restoreState(any());
     }
 
     @Test
@@ -300,32 +254,6 @@ public class EngineServiceTest {
     }
 
     @Test
-    @DisplayName("Undo previous action")
-    void testUndo() {
-        when(caretaker.isFirstMemento()).thenReturn(false);
-
-        Optional<EngineDto> engineDto = engineService.undo();
-
-        assertTrue(engineDto.isPresent());
-
-        verify(caretaker, times(1)).isFirstMemento();
-        verify(caretaker, times(1)).decrementMementoIndex();
-        verify(caretaker, times(1)).getMemento(anyInt());
-        verify(caretaker, times(2)).getCurrentMementoIndex();
-        verify(originator, times(1)).saveState();
-    }
-
-    @Test
-    @DisplayName("Undo previous action to before the first memento")
-    void testUndoToBeforeFirstMemento() {
-        when(caretaker.isFirstMemento()).thenReturn(true);
-
-        Optional<EngineDto> engineDto = engineService.undo();
-
-        assertTrue(engineDto.isEmpty());
-    }
-
-    @Test
     @DisplayName("Redo previous action")
     void testRedo() {
         when(caretaker.isLastMemento()).thenReturn(false);
@@ -341,7 +269,71 @@ public class EngineServiceTest {
         verify(caretaker, times(1)).incrementMementoIndex();
         verify(caretaker, times(1)).getMemento(anyInt());
         verify(caretaker, times(2)).getCurrentMementoIndex();
-        verify(originator, times(1)).saveState();
+        verify(originator, times(1)).restoreState(any());
+    }
+
+    @Test
+    @DisplayName("Undo previous action to before the first memento")
+    void testUndoToBeforeFirstMemento() {
+        when(caretaker.isFirstMemento()).thenReturn(true);
+
+        Optional<EngineDto> engineDto = engineService.undo();
+
+        assertTrue(engineDto.isEmpty());
+    }
+
+    @Nested
+    @DisplayName("Initialize engine service")
+    class initializeEngineService {
+        @Test
+        @DisplayName("Initialize engine service")
+        void testInitializeEngineService() {
+            EngineService service = new EngineService(engine, engineInvoker, originator, caretaker);
+
+            assertNotNull(service);
+
+            verify(originator, times(2)).setEngine(any(EngineImpl.class));
+            verify(caretaker, times(2)).addMemento(any());
+        }
+
+        @Test
+        @DisplayName("Initialize engine service without invoker")
+        void testInitializeEngineServiceWithoutInvoker() {
+            String expectedErrorMessage = "An engine service requires an engine invoker.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, null, originator, caretaker);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+
+        @Test
+        @DisplayName("Initialize engine service without originator")
+        void testInitializeEngineControllerWithoutOriginator() {
+            String expectedErrorMessage = "An engine service requires an originator.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, engineInvoker, null, caretaker);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
+
+        @Test
+        @DisplayName("Initialize engine service without caretaker")
+        void testInitializeEngineControllerWithoutCaretaker() {
+            String expectedErrorMessage = "An engine service requires a caretaker.";
+
+            Exception exception = assertThrows(NullPointerException.class, () -> {
+                new EngineService(engine, engineInvoker, originator, null);
+            });
+            String errorMessage = exception.getMessage();
+
+            assertEquals(expectedErrorMessage, errorMessage);
+        }
     }
 
     @Test

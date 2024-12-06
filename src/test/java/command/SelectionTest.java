@@ -1,5 +1,6 @@
 package command;
 
+import fr.istic.aco.editor.command.Insertion;
 import fr.istic.aco.editor.command.Selection;
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
@@ -22,19 +23,20 @@ class SelectionTest {
     @Mock
     private EngineImpl engine;
 
-    @InjectMocks
     private Selection selection;
 
     private AutoCloseable autoCloseable;
 
-    @BeforeEach
-    void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-    }
-
     @AfterEach
     void tearDown() throws Exception {
         autoCloseable.close();
+    }
+
+    @BeforeEach
+    void setUp() {
+        autoCloseable = MockitoAnnotations.openMocks(this);
+
+        selection = new Selection(engine);
     }
 
     @Test

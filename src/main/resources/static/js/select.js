@@ -1,15 +1,21 @@
-let isSelecting = false;
-
+/**
+ * Checks if the current text selection in the editor matches the engine's recorded selection.
+ * If there is a mismatch, it triggers the `select` function to update the engine's selection state.
+ *
+ * Author: Benedict Wolff
+ * @version 1.0
+ */
 async function checkSelection() {
-    if (isSelecting) return;
-
+    console.log(editor.selectionStart + " " + editor.selectionEnd)
     if (editor.selectionStart !== engine.beginIndex || editor.selectionEnd !== engine.endIndex) {
-        isSelecting = true;
         await select();
-        isSelecting = false;
     }
 }
 
+/**
+ * Updates the selection in the text editing engine based on the editor's current selection.
+ * Sends a POST request with the updated selection indices.
+ */
 async function select() {
     const index = {
         beginIndex: editor.selectionStart,
@@ -27,7 +33,7 @@ async function select() {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error(`Error: ${response.status} - ${response}`);
+        throw new Error(response);
       }
       return response.json();
     })

@@ -3,7 +3,6 @@ package memento;
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.memento.CaretakerImpl;
 import fr.istic.aco.editor.memento.Memento;
-import fr.istic.aco.editor.memento.MementoImpl;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -195,7 +194,7 @@ class CaretakerImplTest {
     @DisplayName("Increment memento index further than highest memento index")
     public void testDecrementMementoIndexFurtherThanHighest() {
         String expectedErrorMessage =
-                "A memento index cannot be set incremented to a value larger than the maximum number of mementos.";
+                "A memento index cannot be incremented to a value larger than the maximum number of mementos.";
 
         Exception exception = assertThrows(IndexOutOfBoundsException.class, () -> {
             caretaker.incrementMementoIndex();

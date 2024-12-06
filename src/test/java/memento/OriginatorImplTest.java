@@ -2,54 +2,22 @@ package memento;
 
 import fr.istic.aco.editor.engine.EngineImpl;
 import fr.istic.aco.editor.memento.Memento;
-import fr.istic.aco.editor.memento.MementoImpl;
 import fr.istic.aco.editor.memento.OriginatorImpl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OriginatorImplTest {
 
-    @Mock
-    private EngineImpl engine;
-
-    private OriginatorImpl originator;
-
-    private AutoCloseable autoCloseable;
-
-    @BeforeEach
-    void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-        originator = new OriginatorImpl();
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
-    }
+    OriginatorImpl originator;
 
     @Test
     @DisplayName("Save state with engine")
     void testSaveStateWithEngine() {
-        Memento<EngineImpl> memento = originator.saveState();
-
-        EngineImpl savedState = memento.state();
-
-        assertEquals("", savedState.getBufferContents());
-        assertEquals("", savedState.getClipboardContents());
-        assertEquals(0, savedState.getSelection().getBeginIndex());
-        assertEquals(0, savedState.getSelection().getEndIndex());
-    }
-
-    @Test
-    @DisplayName("Save state without engine")
-    void testSaveStateWithoutEngine() {
-        engine = null;
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
 
         Memento<EngineImpl> memento = originator.saveState();
 
@@ -64,24 +32,58 @@ class OriginatorImplTest {
     @Test
     @DisplayName("Restore state")
     void testRestoreState() {
-        engine = new EngineImpl();
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
 
-        String buffer = "This is the given buffer content.";
-        String updatedBuffer = "This is the updated buffer content.";
-        engine.insert(buffer);
+        String firstInsert = "Hello, ";
+        String secondInsert = "World!";
 
-        Memento<EngineImpl> initialMemento = originator.saveState();
+        engine.insert(firstInsert);
+        Memento<EngineImpl> initialState = originator.saveState();
 
-        EngineImpl updatedState = new EngineImpl();
-        updatedState.insert(updatedBuffer);
-        originator.restoreState(new MementoImpl(updatedState));
+        engine.insert(secondInsert);
+        Memento<EngineImpl> currentState = originator.saveState();
 
-        Memento<EngineImpl> modifiedMemento = originator.saveState();
-        assertEquals(updatedBuffer, modifiedMemento.state().getBufferContents());
+        originator.restoreState(initialState);
 
-        originator.restoreState(initialMemento);
+        assertEquals(firstInsert, initialState.state().getBufferContents());
+        assertEquals(firstInsert + secondInsert, currentState.state().getBufferContents());
+        assertEquals(firstInsert, engine.getBufferContents());
+    }
 
-        Memento<EngineImpl> restoredMemento = originator.saveState();
-        assertEquals("", restoredMemento.state().getBufferContents());
+    @Test
+    @DisplayName("Restore non-existent memento")
+    void testRestoreStateWithNullMemento() {
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
+
+        String expectedErrorMessage = "A memento needs to exist to be restored.";
+
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            originator.restoreState(null);
+        });
+        String errorMessage = exception.getMessage();
+
+        assertEquals(expectedErrorMessage, errorMessage);
+    }
+
+    @Test
+    @DisplayName("Get engine")
+    void testGetEngine() {
+        EngineImpl engine = new EngineImpl();
+        OriginatorImpl originator = new OriginatorImpl(engine);
+
+        assertEquals(engine, originator.getEngine());
+    }
+
+    @Test
+    @DisplayName("Set engine")
+    void testSetEngine() {
+        EngineImpl engine = new EngineImpl();
+
+        OriginatorImpl originator = new OriginatorImpl();
+        originator.setEngine(engine);
+
+        assertEquals(engine, originator.getEngine());
     }
 }

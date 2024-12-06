@@ -4,8 +4,6 @@ import fr.istic.aco.editor.selection.Selection;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component
 public class EngineImpl implements Engine {
 
@@ -17,17 +15,6 @@ public class EngineImpl implements Engine {
         this.buffer = new StringBuilder();
         this.clipboard = "";
         this.selection = new SelectionImpl(this.buffer);
-    }
-
-    public EngineImpl(EngineImpl engine) {
-        Objects.requireNonNull(engine, "An engine requires an existing engine.");
-
-        this.buffer = new StringBuilder(engine.getBufferContents());
-        this.clipboard = engine.getClipboardContents();
-        this.selection = new SelectionImpl(
-                this.buffer,
-                engine.getSelection().getBeginIndex(),
-                engine.getSelection().getEndIndex());
     }
 
     /**

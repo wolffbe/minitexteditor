@@ -1,51 +1,32 @@
+/**
+ * Event listeners for managing user interactions with the text editor.
+ * Handles keyboard input, mouse events, and button clicks to interact with the text editing engine.
+ *
+ * Author:  Benedict Wolff
+ * @version 1.0
+ */
+
 document.addEventListener('DOMContentLoaded', updateEngineState);
 
-editor.addEventListener('keyup', async (event) => {
-    if(event.key === "ArrowUp" ||
-       event.key === "ArrowDown" ||
-       event.key === "ArrowLeft" ||
-       event.key === "ArrowRight") {
-        await checkSelection();
-    }
-
+editor.addEventListener('keydown', async (event) => {
     if(event.ctrlKey && event.key === "c") {
-        await copy().then(() => {
-            updateEngineState();
-        });
+        event.preventDefault();
     }
     if(event.ctrlKey && event.key === "x") {
-        await cut().then(() => {
-            updateEngineState();
-        });
+        event.preventDefault();
     }
     if(event.ctrlKey && event.key === "v") {
-        if(engine.clipboard === "") {
-            event.preventDefault();
-        } else {
-            await paste().then(() => {
-                updateEngineState();
-            });
-        }
+        event.preventDefault();
     }
-
     if(event.ctrlKey && event.key === "y") {
         event.preventDefault();
-        await redo().then(() => {
-            updateEngineState();
-        });
     }
-
     if(event.ctrlKey && event.key === "z") {
         event.preventDefault();
-        await undo().then(() => {
-            updateEngineState();
-        });
     }
 
     if(event.key === "Backspace") {
-        await deleteText().then(() => {
-            updateEngineState();
-        });
+        event.preventDefault();
     }
 
     if(event.key === "Delete" || event.key === "Enter" || event.key === 'Alt' || event.key === 'AltGraph') {
@@ -54,8 +35,56 @@ editor.addEventListener('keyup', async (event) => {
     }
 
     if(!event.ctrlKey && event.key.length === 1) {
-        await insert(event.key).then(() => {
-            updateEngineState();
+        await insert(event.key).then(async () => {
+            await updateEngineState();
+        });
+    }
+});
+
+editor.addEventListener('keyup', async (event) => {
+    if(event.key === "ArrowUp" ||
+       event.key === "ArrowDown" ||
+       event.key === "ArrowLeft" ||
+       event.key === "ArrowRight") {
+        await checkSelection().then(async () => {
+            await updateEngineState();
+        });
+    }
+
+    if(event.ctrlKey && event.key === "a") {
+        await checkSelection().then(async () => {
+            await updateEngineState();
+        });
+    }
+    if(event.ctrlKey && event.key === "c") {
+        await copy().then(async () => {
+            await updateEngineState();
+        });
+    }
+    if(event.ctrlKey && event.key === "x") {
+        await cut().then(async () => {
+            await updateEngineState();
+        });
+    }
+    if(event.ctrlKey && event.key === "v") {
+        await paste().then(async () => {
+            await updateEngineState();
+        });
+    }
+    if(event.ctrlKey && event.key === "y") {
+        await redo().then(async () => {
+            await updateEngineState();
+        });
+    }
+    if(event.ctrlKey && event.key === "z") {
+        await undo().then(async () => {
+            await updateEngineState();
+        });
+    }
+
+    if(event.key === "Backspace") {
+        await deleteText().then(async () => {
+            await updateEngineState();
         });
     }
 });
@@ -66,7 +95,9 @@ editor.addEventListener('contextmenu', function(event) {
 });
 
 editor.addEventListener('click', async (event) => {
-    await checkSelection();
+    await checkSelection().then(async () => {
+        await updateEngineState();
+    });
 });
 
 recordButton.addEventListener('click', () => {

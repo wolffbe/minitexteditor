@@ -1,0 +1,6 @@
+engine
+fr.istic.aco.editor
+fr.istic.aco.editor.command
+fr.istic.aco.editor.engine
+fr.istic.aco.editor.memento
+fr.istic.aco.editor.selection

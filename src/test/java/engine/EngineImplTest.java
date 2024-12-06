@@ -31,19 +31,6 @@ class EngineImplTest {
     }
 
     @Test
-    @DisplayName("Initialize engine without existing engine")
-    void initializeEngineWithoutExistingEngine() {
-        String expectedErrorMessage = "An engine requires an existing engine.";
-
-        Exception exception = assertThrows(NullPointerException.class, () -> {
-            new EngineImpl(null);
-        });
-        String errorMessage = exception.getMessage();
-
-        assertEquals(expectedErrorMessage, errorMessage);
-    }
-
-    @Test
     @DisplayName("Get the empty selection")
     void getSelection() {
         int beginIndex = engine.getSelection().getBeginIndex();

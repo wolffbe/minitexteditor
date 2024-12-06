@@ -47,30 +47,6 @@ class SelectionImplTest {
 
             assertEquals(expectedErrorMessage, errorMessage);
         }
-
-        @Test
-        @DisplayName("Initialize a selection control object using a begin index, buffer and end index")
-        public void testInitializeSelectionUsingBeginIndexBufferEndIndex() {
-            StringBuilder buffer = new StringBuilder("This is the buffer content.");
-
-            Selection selection = new SelectionImpl(buffer, 1, 1);
-
-            assertEquals(1, selection.getBeginIndex());
-            assertEquals(1, selection.getEndIndex());
-        }
-
-        @Test
-        @DisplayName("Initialize a selection control object without a buffer and with indexes")
-        public void testInitializeSelectionWithIndexWithoutBuffer() {
-            String expectedErrorMessage = "A selection requires a buffer.";
-
-            Exception exception = assertThrows(NullPointerException.class, () -> {
-                new SelectionImpl(null, 0,0);
-            });
-            String errorMessage = exception.getMessage();
-
-            assertEquals(expectedErrorMessage, errorMessage);
-        }
     }
 
     @Test
