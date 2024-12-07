@@ -1,15 +1,21 @@
 # Application Design
 
-The Mini Text Editor consists of a web-based frontend as well as a REST API and a backend written in Java. Over 100 unit tests covering over 90% of the backend were written using JUnit and Mockito to ensure its functionality. This document contains an overview and descriptions of all design choices that were made during the implementation of each component.
+The Mini Text Editor features a web-based frontend, which interacts with a REST API and a backend written in Java. To ensure the robustness and correctness of the backend, over 100 unit tests were written using JUnit and Mockito, achieving over 90% test coverage. These tests verify the functionality of various backend components, ensuring the editor performs efficiently and reliably.
 
-1. [Frontend](#1-frontend)
-2. [REST API](#2-rest-api)
-3. [Backend](#3-backend)
-4. [Testing](#4-Testing)
+This section provides an overview of the design decisions made during the development of the application and the rationale behind each choice.
+
+## **Table of Contents**
+
+1. [Frontend](#frontend)
+2. [REST API](#rest-api)
+    - [Endpoints](#endpoints)
+    - [Design Choices](#design-choices)
+3. [Backend](#backend)
+4. [Testing](#testing)
 
 ---
 
-## **1. Frontend**
+## **1Frontend**
 
 The frontend of the application is built using plain **HTML**, **CSS**, and **JavaScript**, providing a user-friendly interface for interacting with the text editor. The following design choices were made during its implementation:
 
@@ -31,9 +37,13 @@ The frontend of the application is built using plain **HTML**, **CSS**, and **Ja
 
 ---
 
-## **2. REST API**
+## **REST API**
 
-The **REST API** serves as the communication layer between the backend and frontend. The API supports the following endpoints served at `/api/engine`:
+The **REST API** serves as the communication layer between the backend and frontend.
+
+### Endpoints
+
+The API supports the following endpoints served at `/api/engine`:
 
 | **Method** | **Endpoint** | **Description**                            |
 |------------|--------------|--------------------------------------------|
@@ -48,7 +58,7 @@ The **REST API** serves as the communication layer between the backend and front
 | POST       | `/undo`      | Reverts the last action.                   |
 | POST       | `/redo`      | Redoes the last undone action.             |
 
-### Design Choices
+### Design choices
 
 | **Design choice**        | **Description**                                                                                                                                   | **Reason**                                                                                                          |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
@@ -59,7 +69,7 @@ The **REST API** serves as the communication layer between the backend and front
 
 ---
 
-## **3. Backend**
+## **Backend**
 
 The backend of the application is a Java application based on Spring Boot that exposes a REST API to the frontend hosted on the same server as the backend. The following design choices were made during its implementation:
 
@@ -75,9 +85,16 @@ The backend of the application is a Java application based on Spring Boot that e
 | Preconditions                       | Methods include preconditions checked before the method is executed.                                        | Preconditions improve code robustness by ensuring invalid states are avoided and errors are clear and informative.                                     |
 | Javadoc                             | Javadoc is used extensively for classes and methods.                                                        | Javadocs provide clear documentation for developers, aiding maintainability and reducing the time to understand the code.                              |
 
+### Memento design pattern
+
+The **Memento Pattern** is used to store snapshots of the application's state. This allows the text editor to implement undo and redo functionality. The pattern consists of three components:
+- **Memento**: Stores the state.
+- **Originator**: Creates and restores mementos.
+- **Caretaker**: Manages the history of mementos for navigation (undo/redo).
+
 ---
 
-## **4. Testing**
+## **Testing**
 
 ### **Frontend**
 

@@ -6,6 +6,7 @@ by **Benedict Wolff**, M1 Informatique CNI at the University of Rennes ISTIC for
 
 Provided below is an overview of the editor's [features](#Features), what [commands](#Commands) it supports, and instructions on [how to build and run](#how-to-build-and-run-the-editor) the application. Further documentation can be found here:
 - [Application design](./docs/design.md)
+- [Application architecture](./docs/architecture.md)
 - [Javadoc](./docs/javadoc/index.html)
 
 ---
