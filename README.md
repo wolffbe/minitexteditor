@@ -36,19 +36,19 @@ Provided below is an overview of the editor's [features](#Features), what [comma
 
 ## Commands
 
-| **Command** | **Description**                                                             |
-|------------|-----------------------------------------------------------------------------|
-| Insert     | any single character                                                        |
-| Select     | `SHIFT` + `→`, `SHIFT` + `←` or use the mouse                               |
-| Select all | `SHIFT` + `A`                                                               |
-| Delete     | `Backspace`                                                                 |
-| Copy       | `CTRL` + `C`                                                                |
-| Cut        | `CTRL` + `X`                                                                |
-| Paste      | `CTRL` + `V`                                                                |
-| Undo       | `CTRL` + `Z`                                                                |
-| Redo       | `CTRL` + `Y`                                                                |
-| Record     | The editor starts recording every further action.                           |
-| Replay     | The editor replays every recorded action individually until its last state. |
+| **Command** | **Description**                                                                                  |
+|-------------|--------------------------------------------------------------------------------------------------|
+| Insert      | any single character                                                                             |
+| Select      | `SHIFT` + `→`, `SHIFT` + `←` or use the mouse                                                    |
+| Select all  | `SHIFT` + `A`                                                                                    |
+| Delete      | `Backspace`                                                                                      |
+| Copy        | `CTRL` + `C`                                                                                     |
+| Cut         | `CTRL` + `X`                                                                                     |
+| Paste       | `CTRL` + `V`                                                                                     |
+| Undo        | `CTRL` + `Z`                                                                                     |
+| Redo        | `CTRL` + `Y`                                                                                     |
+| Record      | The editor starts recording every further action.                                                |
+| Replay      | The editor loops through every recorded action individually in the backend until its last state. |
 
 ## How to build and run the editor
 
@@ -67,13 +67,21 @@ Clone the repository:
     git clone https://github.com/bjpw/editor.git
     cd editor
 
-Build the Spring backend:
+Build the Spring application:
 
     mvn clean install
 
 ### Run
 
-Run the Java application:
+Run the unit tests:
+
+    mvn test
+
+Run the Spring application OR
+
+    mvn spring-boot:run
+
+Execute the Java jar:
 
     cd target
     java -jar editor-3.0.jar

@@ -6,7 +6,6 @@
  * @version 1.0
  */
 async function checkSelection() {
-    console.log(editor.selectionStart + " " + editor.selectionEnd)
     if (editor.selectionStart !== engine.beginIndex || editor.selectionEnd !== engine.endIndex) {
         await select();
     }
