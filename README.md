@@ -65,8 +65,8 @@ _This step can be skipped, and an existing .jar file [run](#run) right away._
 
 Clone the repository:
 
-    git clone https://github.com/bjpw/editor.git
-    cd editor
+    git clone https://github.com/bjpw/minitexteditor.git
+    cd minitexteditor
 
 Build the Spring application:
 
