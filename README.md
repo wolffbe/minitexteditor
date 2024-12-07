@@ -4,42 +4,43 @@ by **Benedict Wolff**, M1 Informatique CNI at the University of Rennes ISTIC for
 
 ![editor.png](docs/editor.png)
 
-Below is an overview of the editor's [features](#Features), what [commands](#Commands) it supports, and instructions on [how to build and run](#how-to-build-and-run-the-editor) the application. Further documentation can be found here:
-- [Architecture](./docs/architecture.md)
-- [UML diagram](./docs/uml.md)
+Provided below is an overview of the editor's [features](#Features), what [commands](#Commands) it supports, and instructions on [how to build and run](#how-to-build-and-run-the-editor) the application. Further documentation can be found here:
+- [Application design](./docs/design.md)
 - [Javadoc](./docs/javadoc/index.html)
 
 ---
 
 ## Features
 
-- **User Interface**:
-    - The text editor supports inserting, deleting, selecting, copying, cutting, pasting, undoing and redoing.
-    - Recording and replaying actions individually in the backend.
-    - Actions are logged in the frontend to give the user feedback on changes to the engine's state.
+- **Graphical user interface (GUI)**:
+    - The GUI supports inserting, deleting, selecting, copying, cutting, and pasting text as well as undoing and redoing actions.
+    - Actions can be recorded and replayed.
+    - Every action is logged in the frontend to give the user feedback on changes to the engine's state.
 
 
 - **Modular Backend**:
-    - Implements the Command Design Pattern for invoking commands.
-    - Memento Design Pattern for the undo/redo functionality.
-    - Separation of concerns with core engine, service, and controller layers.
+    - The application is built with Spring Boot, the industry standard for production-grade Java applications.
+    - The backend is seperated into the core engine, the service, and the controller layer.
+    - The Command Design Pattern is used for invoking commands.
+    - The Memento Design Pattern is used for the undo/redo functionality.
 
 
 - **REST API**:
-    - Ten REST endpoints for operating the editor engine.
-    - Built with Spring Boot for scalability and maintainability.
+    - Ten REST endpoints are available for operating the editor engine.
+    - All endpoints are managed by the engine controller for easy API maintenance and extension.
 
 
 - **Testing**:
-    - over 100 JUnit tests including mocked classes using Mockito.
-    - over 93% test coverage of all backend classes, branches and lines.
+    - Over 100 JUnit tests have been written to ensure the correct functionality of the editor.
+    - The tests cover 93% test of all classes, branches and lines of the backend.
 
 ## Commands
 
 | **Command** | **Description**                                                             |
 |------------|-----------------------------------------------------------------------------|
 | Insert     | any single character                                                        |
-| Select     | `CTRL` + `A` for everything, `SHIFT` + `→`, `SHIFT` + `←` or use the mouse  |
+| Select     | `SHIFT` + `→`, `SHIFT` + `←` or use the mouse                               |
+| Select all | `SHIFT` + `A`                                                               |
 | Delete     | `Backspace`                                                                 |
 | Copy       | `CTRL` + `C`                                                                |
 | Cut        | `CTRL` + `X`                                                                |
@@ -59,7 +60,7 @@ Below is an overview of the editor's [features](#Features), what [commands](#Com
 
 ### Build
 
-_This step can be skipped, and an existing .jar file [run](#run) straight away._
+_This step can be skipped, and an existing .jar file [run](#run) right away._
 
 Clone the repository:
 

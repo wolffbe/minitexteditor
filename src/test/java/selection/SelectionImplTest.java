@@ -3,6 +3,7 @@ package selection;
 import fr.istic.aco.editor.selection.Selection;
 import fr.istic.aco.editor.selection.SelectionImpl;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
